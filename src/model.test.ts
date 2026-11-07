@@ -391,3 +391,21 @@ describe("real scheme truthfulness and decision record integrity", () => {
     expect(() => decode(JSON.stringify({ ...data, tracked: { [tech.id]: { ...base, decisionDate: "2026-02-30" } } }), ids)).toThrow();
   });
 });
+
+describe("official scholarship source transparency", () => {
+  it("filters source-linked programmes separately from clearly labeled examples", () => {
+    expect(discover(catalog, { ...defaultFilters, source: "official" }, emptyProfile, now)).toHaveLength(3);
+    expect(discover(catalog, { ...defaultFilters, source: "sample" }, emptyProfile, now)).toHaveLength(12);
+    expect(discover(catalog, { ...defaultFilters, source: "official" }, emptyProfile, now).every((entry) => !entry.isSample)).toBe(true);
+  });
+  it("normalizes unknown source filter values", () => {
+    expect(readFilters(new URLSearchParams("source=unknown")).source).toBe("");
+    expect(readFilters(new URLSearchParams("source=official")).source).toBe("official");
+  });
+  it("does not describe official scholarship requirements as sample criteria", () => {
+    const pg = catalog.find((item) => item.id === "ugc-pg-national")!;
+    const reasons = assess(pg, { ...profile, level: "Postgraduate" }).map((item) => item.reason);
+    expect(reasons.some((reason) => reason.includes("listed requirement"))).toBe(true);
+    expect(reasons.some((reason) => reason.includes("sample requirement"))).toBe(false);
+  });
+});
