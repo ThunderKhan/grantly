@@ -835,7 +835,7 @@ test("official scholarship handoff and no fabricated eligibility verdict", async
   await expect(page.getByText("Additional official conditions")).toBeVisible();
   await expect(page.getByRole("link", { name: "Read official scheme details" })).toHaveAttribute("href", "https://www.ugc.gov.in/Scholarships/stu_Scholarship6");
   await expect(page.getByRole("link", { name: "Open official application portal" })).toHaveAttribute("href", "https://scholarships.gov.in/Students");
-  await expect(page.getByText(/does not submit or verify your application/)).toBeVisible();
+  await expect(page.getByText(/cannot submit or verify your application/)).toBeVisible();
 });
 
 test("compare two scholarships and download a calendar reminder", async ({ page }) => {
