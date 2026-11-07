@@ -2,6 +2,8 @@ import { describe, expect, it } from "vitest";
 import { catalog } from "./catalog";
 import {
   assess,
+  compareDeadlinePriority,
+  prioritizedTracked,
   daysUntil,
   deadlineLabel,
   decode,
@@ -159,7 +161,7 @@ describe("discovery and deadlines", () => {
       profile,
       now,
     );
-    expect(results[0].amount).toBe(120000);
+    expect(results[0].amount).toBe(150000);
     expect(results.at(-1)?.amount).toBeUndefined();
   });
   it("handles deadline boundaries and missing dates", () => {
@@ -269,7 +271,9 @@ describe("persistence boundary and next actions", () => {
     expect(
       catalog.every(
         (s) =>
-          s.isSample && s.rules.length && s.documents.length && s.steps.length,
+          s.isSample
+            ? Boolean(s.rules.length && s.documents.length && s.steps.length)
+            : Boolean(s.sourceUrl && s.applicationUrl && s.checkedOn && s.verificationNote && s.steps.length),
       ),
     ).toBe(true);
   });
@@ -356,5 +360,29 @@ describe("untrusted workspace and URL boundaries", () => {
         }),
       ),
     ).toMatchObject({ field: "Science", deadline: "soon", sort: "award" });
+  });
+});
+
+describe("real scheme truthfulness and decision record integrity", () => {
+  it("never calls partial official criteria an eligibility match", () => {
+    const official = catalog.find((s) => s.id === "ugc-pg-national")!;
+    expect(fit(official, { ...profile, level: "Postgraduate" })).toBe("Needs verification");
+    expect(assess(official, { ...profile, level: "Postgraduate" }).some((o) => o.status === "unknown")).toBe(true);
+  });
+  it("places upcoming deadline ahead of expired and missing deadlines", () => {
+    expect(compareDeadlinePriority("2026-11-30", "2026-10-20", now)).toBeLessThan(0);
+    expect(compareDeadlinePriority("2026-10-20", undefined, now)).toBeLessThan(0);
+    const tracked = {
+      "next-gen-tech": { stage: "preparing" as const, documents: [], notes: "", updated: "" },
+      "capital-scholars": { stage: "saved" as const, documents: [], notes: "", updated: "" },
+    };
+    expect(prioritizedTracked([catalog[10], catalog[0]], tracked, now)[0].id).toBe("next-gen-tech");
+  });
+  it("accepts valid decision details and rejects invalid outcomes and dates", () => {
+    const base = { stage: "decision_received", documents: [], notes: "", updated: "", outcome: "waitlisted", decisionDate: "2026-11-07" };
+    const data = { ...initialState, tracked: { [tech.id]: base } };
+    expect(decode(JSON.stringify(data), ids).tracked[tech.id].outcome).toBe("waitlisted");
+    expect(() => decode(JSON.stringify({ ...data, tracked: { [tech.id]: { ...base, outcome: "approved" } } }), ids)).toThrow();
+    expect(() => decode(JSON.stringify({ ...data, tracked: { [tech.id]: { ...base, decisionDate: "2026-02-30" } } }), ids)).toThrow();
   });
 });
