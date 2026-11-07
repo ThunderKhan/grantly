@@ -377,6 +377,11 @@ describe("real scheme truthfulness and decision record integrity", () => {
       "capital-scholars": { stage: "saved" as const, documents: [], notes: "", updated: "" },
     };
     expect(prioritizedTracked([catalog[10], catalog[0]], tracked, now)[0].id).toBe("next-gen-tech");
+    const urgentFirst = {
+      "next-gen-tech": { ...tracked["next-gen-tech"], stage: "saved" as const },
+      "capital-scholars": { ...tracked["capital-scholars"], stage: "preparing" as const },
+    };
+    expect(prioritizedTracked([catalog[10], catalog[0]], urgentFirst, now)[0].id).toBe("next-gen-tech");
   });
   it("accepts valid decision details and rejects invalid outcomes and dates", () => {
     const base = { stage: "decision_received", documents: [], notes: "", updated: "", outcome: "waitlisted", decisionDate: "2026-11-07" };
