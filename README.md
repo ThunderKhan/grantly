@@ -7,9 +7,13 @@ A student-first scholarship workspace for Frontend Arena’s THE OUTPOST 2026. F
 Node.js 24 recommended (22.12+ supported).
 
 ```sh
+git clone --branch feat/grantly-scholarship-workspace https://github.com/ThunderKhan/grantly.git
+cd grantly
 npm ci
 npm run dev
 ```
+
+The implementation is on `feat/grantly-scholarship-workspace` (PR #1); the default branch has not been merged. Open the localhost URL printed by Vite.
 
 ## Check the implementation
 
@@ -22,7 +26,7 @@ npx playwright install chromium
 npm run test:e2e
 ```
 
-For browser tests outside CI, start the dev server at port 4173 (`npm run dev -- --port 4173`), or set `BASE_URL` to a running deployment. Set `CHROMIUM_PATH` only to use an existing system Chromium. In CI the test configuration starts Vite automatically. The GitHub workflow runs unit, build, and Playwright acceptance checks, including axe WCAG scans at 375, 768, 1280, and 1440px.
+For browser tests outside CI, start the dev server at port 4173 (`npm run dev -- --port 4173`), or set `BASE_URL` to a running deployment. Set `CHROMIUM_PATH` only to use an existing system Chromium. In CI the test configuration starts Vite automatically. The GitHub workflow runs unit, build, and Playwright acceptance checks, including axe WCAG scans at 320, 375, 640, 768, 1280, and 1440px.
 
 ## Working experience
 
@@ -44,7 +48,9 @@ One shared React workspace persists versioned, validated data under `grantly:dem
 
 ## Deploy
 
-Vercel detects the Vite build; `vercel.json` supplies SPA deep-link fallback. No environment secrets are required. Deploy the implementation branch or merge it into the production branch after review.
+Automatic Vercel deployments are paused for local review. `vercel.json` sets `git.deploymentEnabled` to `false`; project preview deployments are disabled and the project’s ignored-build command is `exit 0`. Do not launch manual deployments until the user asks to resume.
+
+The existing public deployment keeps serving its last released version. Current changes are reviewed locally and in GitHub Actions. When deployment is explicitly resumed, re-enable the Git configuration and project settings before releasing. No environment secrets are required; the Vite build and SPA deep-link fallback remain configured.
 
 ## Judge walkthrough
 

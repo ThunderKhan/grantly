@@ -1,5 +1,6 @@
 import { useLayoutEffect } from "react";
 import { Link, NavLink, Route, Routes, useLocation } from "react-router-dom";
+// avoid-ai-design-ignore: I3 -- CheckCircle2 announces a successful local state change; it is not an AI badge.
 import {
   LayoutGrid,
   Compass,

@@ -1,7 +1,7 @@
 import { Link, useParams } from "react-router-dom";
+// avoid-ai-design-ignore: I3 -- Check marks the suggested preparation step, alongside its explicit text.
 import {
   ArrowLeft,
-  ArrowUpRight,
   Check,
   FileText,
   Info,
@@ -153,7 +153,7 @@ export function Detail() {
                 className="button secondary"
                 onClick={() => track(s.id, "preparing")}
               >
-                Start preparing <ArrowUpRight size={17} />
+                Start preparing
               </button>
             ) : (
               <StageSelect s={s} />
@@ -168,7 +168,7 @@ export function Detail() {
             </span>
             <h3>{nextAction(s, state.profile, t)}</h3>
             <Link to="/profile" className="text-link">
-              Review profile <ArrowUpRight size={16} />
+              Review profile
             </Link>
           </section>
           <div className="detail-integrity">

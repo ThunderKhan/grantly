@@ -68,7 +68,7 @@ export const catalog: Scholarship[] = [
   sample(
     "next-gen-tech",
     "Next Gen Tech Scholarship",
-    "Futurepath Foundation · sample provider",
+    "Futurepath Foundation (sample provider)",
     "FT",
     "Technology",
     75000,
@@ -86,7 +86,7 @@ export const catalog: Scholarship[] = [
   sample(
     "open-doors",
     "Open Doors Education Grant",
-    "Open Doors Collective · sample provider",
+    "Open Doors Collective (sample provider)",
     "OD",
     "Need-based",
     50000,
@@ -99,7 +99,7 @@ export const catalog: Scholarship[] = [
   sample(
     "science-forward",
     "Science Forward Fellowship",
-    "Curiosity Trust · sample provider",
+    "Curiosity Trust (sample provider)",
     "SF",
     "Research",
     120000,
@@ -112,7 +112,7 @@ export const catalog: Scholarship[] = [
   sample(
     "homegrown-talent",
     "Homegrown Talent Award",
-    "Northstar Education · sample provider",
+    "Northstar Education (sample provider)",
     "HT",
     "Regional",
     40000,
@@ -124,7 +124,7 @@ export const catalog: Scholarship[] = [
   sample(
     "creative-futures",
     "Creative Futures Bursary",
-    "Canvas Learning Fund · sample provider",
+    "Canvas Learning Fund (sample provider)",
     "CF",
     "Creative arts",
     60000,
@@ -137,7 +137,7 @@ export const catalog: Scholarship[] = [
   sample(
     "first-step",
     "First Step School Scholarship",
-    "Brightstart Circle · sample provider",
+    "Brightstart Circle (sample provider)",
     "FS",
     "School",
     25000,
@@ -150,7 +150,7 @@ export const catalog: Scholarship[] = [
   sample(
     "care-in-action",
     "Care in Action Scholarship",
-    "Carebridge Fund · sample provider",
+    "Carebridge Fund (sample provider)",
     "CA",
     "Healthcare",
     100000,
@@ -162,7 +162,7 @@ export const catalog: Scholarship[] = [
   sample(
     "business-builders",
     "Business Builders Award",
-    "Venture Learning Circle · sample provider",
+    "Venture Learning Circle (sample provider)",
     "BB",
     "Business",
     80000,
@@ -175,7 +175,7 @@ export const catalog: Scholarship[] = [
   sample(
     "western-horizons",
     "Western Horizons Grant",
-    "Horizons Education Fund · sample provider",
+    "Horizons Education Fund (sample provider)",
     "WH",
     "Regional",
     45000,
@@ -188,7 +188,7 @@ export const catalog: Scholarship[] = [
   sample(
     "learning-without-limits",
     "Learning Without Limits",
-    "Learning Commons · sample provider",
+    "Learning Commons (sample provider)",
     "LL",
     "Learning resources",
     undefined,
@@ -200,7 +200,7 @@ export const catalog: Scholarship[] = [
   sample(
     "capital-scholars",
     "Capital Scholars Program",
-    "City Learning Trust · sample provider",
+    "City Learning Trust (sample provider)",
     "CS",
     "Regional",
     55000,
@@ -212,7 +212,7 @@ export const catalog: Scholarship[] = [
   sample(
     "southern-innovators",
     "Southern Innovators Award",
-    "Tomorrow Works · sample provider",
+    "Tomorrow Works (sample provider)",
     "SI",
     "Technology",
     90000,

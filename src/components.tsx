@@ -1,7 +1,7 @@
 import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { Link } from "react-router-dom";
+// avoid-ai-design-ignore: I3 -- Check communicates matched eligibility criteria and completed status, always with text.
 import {
-  ArrowUpRight,
   Bookmark,
   Check,
   CircleHelp,
@@ -9,9 +9,6 @@ import {
   GraduationCap,
   X,
   AlertCircle,
-  ArrowRight,
-  Asterisk,
-  Sparkle,
 } from "lucide-react";
 import {
   assess,
@@ -45,7 +42,6 @@ export function ButtonLink({
   return (
     <Link to={to} className={`button ${secondary ? "secondary" : ""}`}>
       {children}
-      <ArrowUpRight size={17} />
     </Link>
   );
 }
@@ -251,7 +247,7 @@ export function ScholarshipCard({ s }: { s: Scholarship }) {
           className="text-link"
           aria-label={`View ${s.title}`}
         >
-          View details <ArrowUpRight size={16} />
+          View details
         </Link>
       </div>
     </article>
@@ -302,35 +298,8 @@ export function FitBreakdown({ s }: { s: Scholarship }) {
         })}
       </div>
       <Link className="text-link" to="/profile">
-        Update your matching profile <ArrowRight size={16} />
+        Update your matching profile
       </Link>
     </section>
-  );
-}
-export function PaperIllustration() {
-  return (
-    <div className="paper-art" aria-hidden="true">
-      <span className="art-orbit" />
-      <div className="art-paper">
-        <span className="art-stamp">
-          <GraduationCap size={32} />
-        </span>
-        <span className="art-line long" />
-        <span className="art-line" />
-        <span className="art-line short" />
-        <div className="art-check">
-          <Check size={15} /> Your next chapter
-        </div>
-      </div>
-      <span className="art-spark one">
-        <Asterisk size={48} />
-      </span>
-      <span className="art-spark two">
-        <Sparkle size={36} />
-      </span>
-      <span className="art-ticket">
-        <Check size={15} /> Opportunity, organized.
-      </span>
-    </div>
   );
 }

@@ -8,8 +8,6 @@ import {
   Search,
   SlidersHorizontal,
   RotateCcw,
-  Sparkles,
-  ArrowUpRight,
   ChevronDown,
 } from "lucide-react";
 import { catalog } from "./catalog";
@@ -58,8 +56,8 @@ export function Discovery() {
   return (
     <>
       <SectionTitle
-        title="Big ambitions. Real possibilities."
-        description="Explore scholarships, understand your fit, and take your next step."
+        title="Discover scholarships"
+        description="Search by subject or provider, then check the requirements against your profile."
       />
       <div className="discovery-layout">
         <aside className="filter-panel">
@@ -151,14 +149,13 @@ export function Discovery() {
               )}
             </fieldset>
             <div className="filter-note">
-              <Sparkles size={20} />
-              <strong>A better fit starts with you.</strong>
+              <strong>Personalize your results</strong>
               <p>
                 Add your study details to see what matches and what needs
                 checking.
               </p>
               <Link to="/profile" className="text-link">
-                Edit my profile <ArrowUpRight size={16} />
+                Edit my profile
               </Link>
             </div>
           </div>

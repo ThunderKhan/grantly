@@ -1,14 +1,9 @@
 import { Link } from "react-router-dom";
 import {
-  ArrowRight,
-  ArrowUpRight,
   Bookmark,
   CalendarDays,
   FileCheck2,
   FolderOpen,
-  Sparkles,
-  Check,
-  CircleHelp,
   UserRound,
   ClipboardList,
   Compass,
@@ -16,12 +11,7 @@ import {
 import { catalog } from "./catalog";
 import { useStore } from "./store";
 import { daysUntil, nextAction, relevance } from "./model";
-import {
-  ButtonLink,
-  Empty,
-  PaperIllustration,
-  ScholarshipCard,
-} from "./components";
+import { ButtonLink, Empty, ScholarshipCard } from "./components";
 export function Dashboard() {
   const { state, storageError } = useStore();
   const tracked = catalog.filter((s) => state.tracked[s.id]);
@@ -85,17 +75,29 @@ export function Dashboard() {
         <div className="welcome-copy">
           <h1>
             {state.profile.name
-              ? `Your next chapter, ${state.profile.name}.`
-              : "Big dreams deserve a clear next step."}
+              ? `Your scholarships, ${state.profile.name}.`
+              : "Your scholarship workspace."}
           </h1>
           <p>
-            Find the right opportunities. Understand your fit.
-            <br className="desktop-break" /> Turn a promising scholarship into a
-            plan.
+            Find funding that fits your studies, check the requirements, and
+            keep track of your applications.
           </p>
           <ButtonLink to="/discover">Explore scholarships</ButtonLink>
         </div>
-        <PaperIllustration />
+        <div className="profile-snapshot">
+          <h2>Your matching profile</h2>
+          <p>
+            <strong>{profileCount} of 5</strong> details added
+          </p>
+          <progress
+            value={profileCount}
+            max={5}
+            aria-label="Matching profile details added"
+          />
+          <Link to="/profile" className="text-link">
+            {profileCount ? "Edit profile" : "Set up your profile"}
+          </Link>
+        </div>
       </section>
       <div className="stats-grid">
         {stats.map(({ label, value, to, Icon }) => (
@@ -104,8 +106,7 @@ export function Dashboard() {
               <span className="stat-label">{label}</span>
               <Icon size={18} />
             </div>
-            <strong>{String(value).padStart(2, "0")}</strong>
-            <ArrowUpRight className="stat-arrow" size={17} />
+            <strong>{value}</strong>
           </Link>
         ))}
       </div>
@@ -113,9 +114,8 @@ export function Dashboard() {
         <div>
           <div className="subheading">
             <div>
-              <h2>Make your next move.</h2>
+              <h2>Next actions</h2>
             </div>
-            <Sparkles size={21} />
           </div>
           <div className="next-actions">
             {profileCount < 5 && (
@@ -126,15 +126,14 @@ export function Dashboard() {
                 <div>
                   <h3>
                     {profileCount
-                      ? "Give your matches more context"
-                      : "Make this workspace yours"}
+                      ? "Complete your matching details"
+                      : "Add your student profile"}
                   </h3>
                   <p>
                     Add your student profile · {profileCount} of 5 matching
                     fields filled
                   </p>
                 </div>
-                <ArrowUpRight size={19} />
               </Link>
             )}
             {tracked.slice(0, profileCount < 5 ? 2 : 3).map((s) => (
@@ -150,7 +149,6 @@ export function Dashboard() {
                   <h3>{nextAction(s, state.profile, state.tracked[s.id])}</h3>
                   <p>{s.title}</p>
                 </div>
-                <ArrowUpRight size={19} />
               </Link>
             ))}
             {!tracked.length && (
@@ -159,13 +157,12 @@ export function Dashboard() {
                   <Compass size={18} />
                 </span>
                 <div>
-                  <h3>Find an opportunity worth pursuing</h3>
+                  <h3>Build your scholarship shortlist</h3>
                   <p>
                     Explore {catalog.length} illustrative scholarships and save
                     your shortlist
                   </p>
                 </div>
-                <ArrowUpRight size={19} />
               </Link>
             )}
           </div>
@@ -173,12 +170,12 @@ export function Dashboard() {
             <div>
               <h2>
                 {profileCount
-                  ? "Worth a closer look."
-                  : "Explore the possibilities."}
+                  ? "Recommended for your profile"
+                  : "Scholarships to explore"}
               </h2>
             </div>
             <Link className="text-link" to="/discover">
-              View all <ArrowRight size={16} />
+              View all
             </Link>
           </div>
           <p className="recommendation-note">
@@ -235,7 +232,6 @@ export function Dashboard() {
                           · sample date
                         </p>
                       </div>
-                      <ArrowUpRight size={16} />
                     </Link>
                   );
                 })}
@@ -251,25 +247,7 @@ export function Dashboard() {
               </div>
             )}
             <Link className="text-link" to="/applications">
-              View applications <ArrowRight size={15} />
-            </Link>
-          </section>
-          <section className="explain-panel">
-            <h2>A match you can understand.</h2>
-            <p>
-              Every recommendation comes with reasons, so you can make your own
-              call.
-            </p>
-            <div>
-              <span>
-                <Check size={16} /> What matches
-              </span>
-              <span>
-                <CircleHelp size={16} /> What needs checking
-              </span>
-            </div>
-            <Link to="/discover" className="text-link">
-              Find your fit <ArrowUpRight size={16} />
+              View applications
             </Link>
           </section>
           <p className="dashboard-disclosure">
@@ -277,16 +255,6 @@ export function Dashboard() {
             applications or eligibility decisions.
           </p>
         </aside>
-      </div>
-      <div className="journey-note">
-        <span className="logo-mark small">
-          <Sparkles size={18} />
-        </span>
-        <p>One journey. Less juggling.</p>
-        <span>
-          Discover <ArrowRight size={13} /> Understand <ArrowRight size={13} />{" "}
-          Prepare <ArrowRight size={13} /> Track
-        </span>
       </div>
     </>
   );

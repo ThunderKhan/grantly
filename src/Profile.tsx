@@ -1,11 +1,6 @@
 import { useRef, useState, type FormEvent } from "react";
-import {
-  Check,
-  ArrowRight,
-  ShieldCheck,
-  UserRound,
-  Trash2,
-} from "lucide-react";
+// avoid-ai-design-ignore: I3 -- Check identifies save confirmation and concrete matching/privacy facts.
+import { Check, ShieldCheck, UserRound, Trash2 } from "lucide-react";
 import { useStore } from "./store";
 import {
   fields,
@@ -55,7 +50,7 @@ export function Profile() {
   return (
     <>
       <SectionTitle
-        title="A profile. A clearer path."
+        title="Student profile"
         description="Tell us a little about your studies. We’ll explain how each opportunity fits."
       />
       <div className="profile-layout">
@@ -151,9 +146,7 @@ export function Profile() {
           {saved && (
             <div className="success-message" role="status">
               <Check size={18} /> Profile saved. Matching has been updated.{" "}
-              <Link to="/discover">
-                Explore your opportunities <ArrowRight size={15} />
-              </Link>
+              <Link to="/discover">Explore your opportunities</Link>
             </div>
           )}
         </form>

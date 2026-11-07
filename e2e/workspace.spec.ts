@@ -10,7 +10,7 @@ test("complete profile → discovery → eligibility → save → documents → 
   await page.goto("/");
   await expect(
     page.getByRole("heading", {
-      name: "Big dreams deserve a clear next step.",
+      name: "Your scholarship workspace.",
     }),
   ).toBeVisible();
   await page.getByRole("link", { name: "My profile", exact: true }).click();
@@ -65,14 +65,14 @@ test("complete profile → discovery → eligibility → save → documents → 
     .fill("Demo: confirm income criterion.");
   await page.getByRole("link", { name: "Dashboard", exact: true }).click();
   await expect(
-    page.getByRole("link", { name: "In preparation 01", exact: true }),
+    page.getByRole("link", { name: "In preparation 1", exact: true }),
   ).toBeVisible();
   await expect(
     page.locator(".deadline-list").getByText("Next Gen Tech Scholarship"),
   ).toBeVisible();
   await page.reload();
   await expect(
-    page.getByRole("heading", { name: "Your next chapter, Demo Learner." }),
+    page.getByRole("heading", { name: "Your scholarships, Demo Learner." }),
   ).toBeVisible();
   await page
     .getByRole("link", { name: "My Applications 1", exact: true })
@@ -197,7 +197,7 @@ test("storage corruption and denied storage recover without a crash", async ({
   );
   await expect(
     page.getByRole("heading", {
-      name: "Big dreams deserve a clear next step.",
+      name: "Your scholarship workspace.",
     }),
   ).toBeVisible();
   await page.goto("/discover");

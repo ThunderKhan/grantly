@@ -1,5 +1,6 @@
 import { Link, useSearchParams } from "react-router-dom";
-import { ArrowUpRight, ListChecks, Check, FileText } from "lucide-react";
+// avoid-ai-design-ignore: I3 -- Check confirms local persistence below the tracker; no decorative feature icons.
+import { ListChecks, Check, FileText } from "lucide-react";
 import { catalog } from "./catalog";
 import { useStore } from "./store";
 import {
@@ -51,7 +52,7 @@ export function Applications() {
   return (
     <>
       <SectionTitle
-        title="Your next chapter, in progress."
+        title="My applications"
         description="Keep your shortlist, preparation, and decisions in one place."
       >
         <ButtonLink to="/discover">Find scholarships</ButtonLink>
@@ -94,7 +95,7 @@ export function Applications() {
                 <div className="tracker-title">
                   <span className="provider-mark">{s.mark}</span>
                   <div>
-                    <span className="context-label">ILLUSTRATIVE SAMPLE</span>
+                    <span className="context-label">Illustrative sample</span>
                     <h2>
                       <Link to={`/scholarships/${s.id}`}>{s.title}</Link>
                     </h2>
@@ -122,14 +123,14 @@ export function Applications() {
                 </div>
                 <div className="tracker-next">
                   <div>
-                    <span className="context-label">NEXT ACTION</span>
+                    <span className="context-label">Next action</span>
                     <p>{nextAction(s, state.profile, t)}</p>
                   </div>
                   <Link
                     className="button secondary"
                     to={`/scholarships/${s.id}`}
                   >
-                    Continue <ArrowUpRight size={16} />
+                    Continue
                   </Link>
                 </div>
               </article>
