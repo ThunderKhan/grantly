@@ -2966,7 +2966,8 @@ input[aria-invalid="true"] {
 }
 
 .route-loading {
-  min-height: 60vh;
+  /* Keep the footer below the fold until the requested route has painted. */
+  min-height: 100svh;
   display: grid;
   place-items: center;
   color: var(--muted);

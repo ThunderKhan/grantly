@@ -536,9 +536,9 @@ test("untrusted strings remain text and invalid URL options recover", async ({
   await page.goto(
     "/discover?level=invalid&sort=javascript%3Aalert(1)&deadline=never",
   );
-  await expect(page.getByLabel("Education level", { exact: true })).toHaveValue(
-    "",
-  );
+  await expect(
+    page.getByRole("combobox", { name: /^Education level/ }),
+  ).toHaveValue("");
   await expect(page.getByLabel("Sort by")).toHaveValue("relevance");
   await expect(page.locator(".scholarship-card")).toHaveCount(12);
 });
@@ -567,7 +567,11 @@ test("production discovery records lab paint and layout stability", async ({
   page,
 }, testInfo) => {
   await page.addInitScript(() => {
-    const metrics = { lcpMs: 0, cumulativeLayoutShift: 0 };
+    const metrics = {
+      lcpMs: 0,
+      cumulativeLayoutShift: 0,
+      shifts: [] as { value: number; nodes: string[] }[],
+    };
     Object.assign(window, { grantlyLabMetrics: metrics });
     new PerformanceObserver((list) => {
       metrics.lcpMs = list.getEntries().at(-1)?.startTime ?? 0;
@@ -577,8 +581,17 @@ test("production discovery records lab paint and layout stability", async ({
         const shift = entry as PerformanceEntry & {
           hadRecentInput: boolean;
           value: number;
+          sources?: { node?: Element }[];
         };
-        if (!shift.hadRecentInput) metrics.cumulativeLayoutShift += shift.value;
+        if (!shift.hadRecentInput) {
+          metrics.cumulativeLayoutShift += shift.value;
+          metrics.shifts.push({
+            value: shift.value,
+            nodes: (shift.sources ?? []).map(
+              (source) => source.node?.tagName + "." + source.node?.className,
+            ),
+          });
+        }
       }
     }).observe({ type: "layout-shift", buffered: true });
   });
