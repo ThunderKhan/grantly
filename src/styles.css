@@ -3196,3 +3196,19 @@ input[aria-invalid="true"] {
   min-width: 46px;
   min-height: 46px;
 }
+
+/* Keep source transparency readable without adding another card or palette. */
+.discovery-source-note {
+  margin-top: var(--space-3);
+  color: var(--muted);
+  font-size: var(--text-sm);
+  line-height: 1.6;
+}
+.welcome-copy .demo-start {
+  margin-left: var(--space-3);
+}
+@media (max-width: 575px) {
+  .welcome-copy .demo-start {
+    margin: var(--space-3) 0 0;
+  }
+}

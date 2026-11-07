@@ -897,3 +897,48 @@ test("unsaved profile navigation is blocked and backup import restores local sta
   await page.reload();
   await expect(page.getByLabel("Preferred name")).toHaveValue("Restored");
 });
+
+test("fresh visitor can try complete sample workflow without entering personal data", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("button", { name: "Try an interactive example" }).click();
+  await expect(page).toHaveURL(/\/dashboard$/);
+  await expect(page.getByRole("heading", { name: "Your scholarships, Demo student." })).toBeVisible();
+  await expect(page.getByRole("link", { name: "In preparation 1", exact: true })).toBeVisible();
+  await page.getByRole("link", { name: "My Applications 2", exact: true }).click();
+  await expect(page.getByText("1 / 4 documents ready")).toBeVisible();
+  await page.getByRole("combobox", { name: "Application stage for Homegrown Talent Award" }).selectOption("preparing");
+  await page.reload();
+  await expect(page.getByRole("combobox", { name: "Application stage for Homegrown Talent Award" })).toHaveValue("preparing");
+  await page.goto("/profile");
+  await expect(page.getByLabel("Preferred name")).toHaveValue("Demo student");
+});
+
+test("sample workspace warns before replacing existing personal data", async ({ page }) => {
+  await page.goto("/profile");
+  await page.getByLabel("Preferred name").fill("Existing student");
+  await page.getByRole("button", { name: "Save profile" }).click();
+  await page.goto("/");
+  await page.getByRole("button", { name: "Try an interactive example" }).click();
+  await expect(page.getByRole("dialog", { name: "Replace your local progress with a sample?" })).toBeVisible();
+  await page.getByRole("button", { name: "Keep my progress" }).click();
+  await page.goto("/profile");
+  await expect(page.getByLabel("Preferred name")).toHaveValue("Existing student");
+  await page.goto("/");
+  await page.getByRole("button", { name: "Try an interactive example" }).click();
+  await page.getByRole("button", { name: "Load sample workspace" }).click();
+  await expect(page.getByRole("heading", { name: "Your scholarships, Demo student." })).toBeVisible();
+});
+
+test("official and example scholarships can be distinguished using source filters", async ({ page }) => {
+  await page.goto("/discover");
+  await page.getByRole("combobox", { name: "Listing source" }).selectOption("official");
+  await expect(page.locator("article.scholarship-card")).toHaveCount(3);
+  await expect(page.locator("article.scholarship-card").first()).toContainText("Officially listed scheme");
+  await expect(page).toHaveURL(/source=official/);
+  await page.reload();
+  await expect(page.locator("article.scholarship-card")).toHaveCount(3);
+  await page.getByRole("combobox", { name: "Listing source" }).selectOption("sample");
+  await expect(page.locator("article.scholarship-card")).toHaveCount(12);
+  await page.getByRole("button", { name: "Reset", exact: true }).click();
+  await expect(page.locator("article.scholarship-card")).toHaveCount(15);
+});

@@ -117,8 +117,8 @@ export function assess(s: Scholarship, p: Profile): Outcome[] {
       label: r.label,
       status: matches ? "match" : "possible_mismatch",
       reason: matches
-        ? `Your answer (${value}${r.field === "marks" ? "%" : ""}) meets this sample requirement.`
-        : `Your answer (${value}${r.field === "marks" ? "%" : ""}) differs from this sample requirement. Check the provider’s rules before applying.`,
+        ? `Your answer (${value}${r.field === "marks" ? "%" : ""}) meets this ${s.isSample ? "example" : "listed"} requirement.`
+        : `Your answer (${value}${r.field === "marks" ? "%" : ""}) differs from this ${s.isSample ? "example" : "listed"} requirement. Check the provider’s rules before applying.`,
     };
   });
   // A verified listing may have criteria outside this simple local profile.
@@ -232,6 +232,7 @@ export type Filters = {
   region: string;
   fit: string;
   deadline: string;
+  source: string;
   sort: string;
 };
 export const defaultFilters: Filters = {
@@ -241,6 +242,7 @@ export const defaultFilters: Filters = {
   region: "",
   fit: "",
   deadline: "",
+  source: "",
   sort: "relevance",
 };
 export function discover(
@@ -267,6 +269,8 @@ export function discover(
           return false;
       }
       if (filters.fit && fit(s, p) !== filters.fit) return false;
+      if (filters.source === "official" && s.isSample) return false;
+      if (filters.source === "sample" && !s.isSample) return false;
       const days = daysUntil(s.deadline, now);
       if (filters.deadline === "upcoming" && (days === undefined || days < 0))
         return false;
@@ -300,7 +304,9 @@ export function nextAction(s: Scholarship, p: Profile, t?: Tracked) {
   if (t?.stage === "applied")
     return "Check the provider for a decision and update your stage.";
   if ((daysUntil(s.deadline) ?? 0) < 0)
-    return "Sample deadline passed. Verify whether another cycle is available.";
+    return s.isSample
+      ? "Sample deadline passed. Explore another example or check for a new cycle."
+      : "The listed deadline has passed. Check the official source for a new cycle.";
   const outcomes = assess(s, p);
   const mismatch = outcomes.find((x) => x.status === "possible_mismatch");
   if (mismatch) return `Review requirement: ${mismatch.label.toLowerCase()}.`;
@@ -421,6 +427,7 @@ export function readFilters(params: URLSearchParams): Filters {
       "expired",
       "unknown",
     ]),
+    source: option("source", ["", "official", "sample"]),
     sort: option("sort", ["relevance", "deadline", "award"]),
   };
 }

@@ -54,9 +54,13 @@ One shared React workspace persists versioned, validated data under `grantly:dem
 
 ## Deploy
 
-Automatic Vercel deployments are paused for local review. `vercel.json` sets `git.deploymentEnabled` to `false`; project preview deployments are disabled and the project’s ignored-build command is `exit 0`. Do not launch manual deployments until the user asks to resume.
+The public production deployment is **live** at https://trygrantly.vercel.app. The Vercel Git integration builds `main` automatically using `npm run build`, serving Vite's `dist` output with a single-page-app route fallback. No runtime secrets are required.
 
-The existing public deployment keeps serving its last released version. Current changes are reviewed locally and in GitHub Actions. When deployment is explicitly resumed, re-enable the Git configuration and project settings before releasing. No environment secrets are required; the Vite build and SPA deep-link fallback remain configured.
+## Guided interactive experience
+
+From the landing page or an empty dashboard, use **Try an interactive example** to load an intentionally fictional student profile and two sample scholarship tracking records. This makes search, match explanations, deadline actions, checklists, stages, and persistence easy to evaluate without entering personal information. Replacing existing work requires confirmation; user data is never silently overwritten.
+
+Discovery offers **Listing source** filtering to distinguish three source-linked government programmes from twelve clearly labeled interactive examples. The first option is real source information, not a promise that the current application window is open. External application submission always takes place on the provider's portal.
 
 ## Judge walkthrough
 

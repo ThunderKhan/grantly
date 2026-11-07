@@ -9,6 +9,7 @@ import {
   Compass,
 } from "lucide-react";
 import { NumberTicker } from "./NumberTicker";
+import { DemoStart } from "./DemoStart";
 import { AnimatedProgress } from "./motion";
 import { catalog } from "./catalog";
 import { useStore } from "./store";
@@ -78,6 +79,7 @@ export function Dashboard() {
             keep track of your applications.
           </p>
           <ButtonLink to="/discover">Explore scholarships</ButtonLink>
+          {!tracked.length && profileCount === 0 && <DemoStart />}
         </div>
         <div className="profile-snapshot">
           <h2>Your matching profile</h2>

@@ -113,6 +113,38 @@ function useWorkspace() {
       "Decision details saved in this browser.",
     );
   }
+  function loadDemo() {
+    // Demonstration records are unmistakably illustrative. Loading them
+    // requires confirmation if the visitor has existing personal progress.
+    const now = new Date().toISOString();
+    const demo: AppState = {
+      version: 1,
+      profile: {
+        name: "Demo student",
+        level: "Undergraduate",
+        field: "Computer science",
+        region: "Uttar Pradesh",
+        marks: "80",
+        income: "",
+      },
+      tracked: {
+        "next-gen-tech": {
+          stage: "preparing",
+          documents: ["Latest academic transcript"],
+          notes: "Example: verify household-income conditions before applying.",
+          updated: now,
+        },
+        "homegrown-talent": {
+          stage: "saved",
+          documents: [],
+          notes: "Example: compare deadlines before preparing.",
+          updated: now,
+        },
+      },
+    };
+    const validated = decode(JSON.stringify(demo), catalog.map((s) => s.id));
+    change(() => validated, "Sample workspace loaded. Try changing a stage or checklist.");
+  }
   function restore(workspace: AppState) {
     // Decode again at the store boundary, rather than trusting UI inputs.
     const checked = decode(
@@ -182,6 +214,7 @@ function useWorkspace() {
     saveProfile,
     track,
     setDecision,
+    loadDemo,
     restore,
     remove,
     document,

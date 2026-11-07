@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { catalog } from "./catalog";
-import { assess, daysUntil, fields, money, relevance } from "./model";
+import { assess, awardLabel, daysUntil, fields, relevance } from "./model";
+import { DemoStart } from "./DemoStart";
 import { ButtonLink, Deadline, FitBadge, SaveButton } from "./components";
 import { useStore } from "./store";
 import "./landing.css";
@@ -28,18 +29,19 @@ export function Landing() {
             See your next step.
           </h1>
           <p className="landing-intro">
-            Your education has a lot ahead of it. Find opportunities that fit
-            your studies, understand the requirements, and keep your
-            applications moving.
+            Discover scholarships, understand where you meet each requirement,
+            prepare documents, and track every application from one place.
           </p>
           <div className="landing-actions">
             <ButtonLink to="/discover">Find scholarships</ButtonLink>
+            <DemoStart />
             <Link className="text-link" to="/dashboard">
               {hasProgress ? "Continue your workspace" : "Open your workspace"}
             </Link>
           </div>
           <p className="landing-hero-note">
-            Start exploring. Add your study details whenever you’re ready.
+            Browse source-linked government schemes or explore clearly labeled
+            examples. No account required; progress stays on this device.
           </p>
         </div>
         <div className="landing-opportunity">
@@ -52,7 +54,7 @@ export function Landing() {
           <p className="landing-provider">{opportunity.provider}</p>
           <h2>{opportunity.title}</h2>
           <div className="landing-award">
-            <strong>{money(opportunity.amount)}</strong>
+            <strong>{awardLabel(opportunity)}</strong>
             <span>
               {opportunity.amount
                 ? "toward your education"
@@ -84,7 +86,9 @@ export function Landing() {
             </Link>
           </div>
           <p className="landing-sample-label">
-            Illustrative sample opportunity
+            {opportunity.isSample
+              ? "Illustrative sample opportunity — not a real scholarship."
+              : "Officially listed scheme — confirm current dates and eligibility."}
           </p>
         </div>
       </section>

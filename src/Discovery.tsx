@@ -133,6 +133,17 @@ export function Discovery() {
               </select>
             </label>
             <label className="filter-label">
+              Listing source
+              <select
+                value={filters.source}
+                onChange={(e) => set("source", e.target.value)}
+              >
+                <option value="">All opportunities</option>
+                <option value="official">Officially listed programmes</option>
+                <option value="sample">Interactive examples</option>
+              </select>
+            </label>
+            <label className="filter-label">
               Deadline
               <select
                 value={filters.deadline}
@@ -190,6 +201,11 @@ export function Discovery() {
               </button>
             )}
           </div>
+          <p className="discovery-source-note">
+            {catalog.filter((s) => !s.isSample).length} source-linked government schemes ·
+            {" "}{catalog.filter((s) => s.isSample).length} clearly labeled interactive examples.
+            Official dates and eligibility must be confirmed with providers.
+          </p>
           <div className="results-toolbar">
             <p aria-live="polite">
               <strong>{results.length}</strong> opportunities
