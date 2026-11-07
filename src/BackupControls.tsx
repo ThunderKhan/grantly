@@ -79,7 +79,7 @@ export function BackupControls() {
         confirmLabel="Restore backup"
         cancelLabel="Keep current workspace"
       >
-        This will replace your current profile, ${pending ? Object.keys(pending.tracked).length : 0} tracked opportunities from the backup, and all local notes and document progress. Export your current workspace first if you want to keep a copy.
+        This will replace your current profile and progress with {pending ? Object.keys(pending.tracked).length : 0} tracked opportunities from the backup, including notes and document readiness. Export your current workspace first if you want to keep a copy.
       </Confirm>
     </div>
   );
