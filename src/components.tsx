@@ -16,7 +16,7 @@ import {
   deadlineLabel,
   daysUntil,
   fit,
-  money,
+  awardLabel,
   type Scholarship,
 } from "./model";
 import { useStore } from "./store";
@@ -214,7 +214,15 @@ export function FitBadge({ s }: { s: Scholarship }) {
     </span>
   );
 }
-export function ScholarshipCard({ s }: { s: Scholarship }) {
+export function ScholarshipCard({
+  s,
+  compared = false,
+  onCompare,
+}: {
+  s: Scholarship;
+  compared?: boolean;
+  onCompare?: (id: string) => void;
+}) {
   const { state } = useStore();
   const outcomes = assess(s, state.profile);
   const matched = outcomes.filter((x) => x.status === "match").length;
@@ -228,7 +236,7 @@ export function ScholarshipCard({ s }: { s: Scholarship }) {
         </span>
         <span className="category">
           {s.category}
-          <small>Illustrative sample</small>
+          <small>{s.isSample ? "Illustrative sample" : "Officially listed scheme"}</small>
         </span>
         <SaveButton s={s} compact />
       </div>
@@ -238,8 +246,8 @@ export function ScholarshipCard({ s }: { s: Scholarship }) {
       <p className="provider">{s.provider}</p>
       <p className="card-description">{s.description}</p>
       <div className="card-value">
-        <strong>{money(s.amount)}</strong>
-        <span>{s.amount ? "toward your education" : "Learning resources"}</span>
+        <strong>{awardLabel(s)}</strong>
+        <span>{s.amount ? (s.isSample ? "toward your education" : "annual award; verify current terms") : s.isSample ? "Learning resources" : "See official programme"}</span>
       </div>
       <div className="fit-row">
         <FitBadge s={s} />
@@ -257,6 +265,12 @@ export function ScholarshipCard({ s }: { s: Scholarship }) {
           View details
         </Link>
       </div>
+      {onCompare && (
+        <label className="compare-control">
+          <input type="checkbox" checked={compared} onChange={() => onCompare(s.id)} />
+          Compare
+        </label>
+      )}
     </article>
   );
 }
@@ -271,8 +285,7 @@ export function FitBreakdown({ s }: { s: Scholarship }) {
         <FitBadge s={s} />
       </div>
       <p className="muted">
-        Based on your profile and this sample’s stated requirements. This is
-        guidance, not an official eligibility decision.
+        Based on your profile and {s.isSample ? "this sample’s" : "the listed"} requirements. This is guidance, not an official eligibility decision. {s.isSample ? "" : "Other conditions must be checked with the provider."}
       </p>
       <div className="criteria-list">
         {assess(s, state.profile).map((x) => {
