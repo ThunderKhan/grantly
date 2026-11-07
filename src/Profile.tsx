@@ -36,7 +36,7 @@ export function Profile() {
       if (event.defaultPrevented || event.button !== 0 || event.ctrlKey || event.metaKey || event.altKey || event.shiftKey) return;
       const target = event.target;
       if (!(target instanceof Element)) return;
-      const anchor = target.closest("a[href]");
+      const anchor = target.closest<HTMLAnchorElement>("a[href]");
       if (!anchor || anchor.hasAttribute("download") || anchor.target === "_blank") return;
       const url = new URL(anchor.href);
       if (url.origin !== window.location.origin || (url.pathname === window.location.pathname && url.search === window.location.search)) return;
