@@ -8,6 +8,7 @@ import {
   levels,
   regions,
   emptyProfile,
+  validMarks,
   type Profile as ProfileType,
 } from "./model";
 import { Confirm, SectionTitle } from "./components";
@@ -24,10 +25,7 @@ export function Profile() {
   ).length;
   const dirty = JSON.stringify(form) !== JSON.stringify(state.profile);
   function validateMarks(value: string) {
-    return value !== "" &&
-      (!Number.isFinite(Number(value)) ||
-        Number(value) < 0 ||
-        Number(value) > 100)
+    return !validMarks(value)
       ? "Enter a percentage from 0 to 100, or leave this blank."
       : "";
   }

@@ -2,14 +2,8 @@ import { Link, useSearchParams } from "react-router-dom";
 import { FileText } from "lucide-react";
 import { catalog } from "./catalog";
 import { useStore } from "./store";
-import {
-  dateLabel,
-  daysUntil,
-  nextAction,
-  stages,
-  type Scholarship,
-  type Stage,
-} from "./model";
+import { StageSelect } from "./StageSelect";
+import { dateLabel, daysUntil, nextAction, stages } from "./model";
 import {
   ButtonLink,
   Deadline,
@@ -17,25 +11,6 @@ import {
   SaveButton,
   SectionTitle,
 } from "./components";
-export function StageSelect({ s }: { s: Scholarship }) {
-  const { state, track } = useStore();
-  return (
-    <label className="stage-select">
-      Application stage
-      <select
-        aria-label={`Application stage for ${s.title}`}
-        value={state.tracked[s.id]?.stage ?? "saved"}
-        onChange={(e) => track(s.id, e.target.value as Stage)}
-      >
-        {Object.entries(stages).map(([key, label]) => (
-          <option key={key} value={key}>
-            {label}
-          </option>
-        ))}
-      </select>
-    </label>
-  );
-}
 export function Applications() {
   const { state } = useStore();
   const [params, setParams] = useSearchParams();
@@ -56,12 +31,17 @@ export function Applications() {
       >
         <ButtonLink to="/discover">Find scholarships</ButtonLink>
       </SectionTitle>
-      <div className="stage-tabs" aria-label="Filter application stage">
+      <div
+        className="stage-tabs"
+        role="group"
+        aria-label="Filter application stage"
+      >
         {[["", "All applications"], ...Object.entries(stages)].map(
           ([key, label]) => (
             <button
               key={key}
               className={stage === key ? "active" : ""}
+              aria-pressed={stage === key}
               onClick={() => setParams(key ? { stage: key } : {})}
             >
               {label}

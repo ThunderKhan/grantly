@@ -12,6 +12,7 @@ import {
   initialState,
   nextAction,
   relevance,
+  readFilters,
 } from "./model";
 const ids = catalog.map((s) => s.id);
 const tech = catalog[0];
@@ -271,5 +272,89 @@ describe("persistence boundary and next actions", () => {
           s.isSample && s.rules.length && s.documents.length && s.steps.length,
       ),
     ).toBe(true);
+  });
+});
+
+describe("untrusted workspace and URL boundaries", () => {
+  it("rejects oversized storage before parsing", () => {
+    expect(() => decode(" ".repeat(100_001), ids)).toThrow("limits");
+  });
+  it("rejects coerced and oversized academic percentages", () => {
+    for (const marks of [
+      " ",
+      "0x50",
+      "8e1",
+      "80.123",
+      "-1",
+      "101",
+      "9".repeat(200),
+    ]) {
+      expect(() =>
+        decode(
+          JSON.stringify({ ...initialState, profile: { ...profile, marks } }),
+          ids,
+        ),
+      ).toThrow();
+    }
+    for (const marks of ["", "0", "70.25", "100"]) {
+      expect(
+        decode(
+          JSON.stringify({ ...initialState, profile: { ...profile, marks } }),
+          ids,
+        ).profile.marks,
+      ).toBe(marks);
+    }
+  });
+  it("rejects unbounded checklists and deduplicates valid readiness", () => {
+    const tracked = {
+      stage: "saved",
+      documents: ["A", "A"],
+      notes: "",
+      updated: now.toISOString(),
+    };
+    const raw = (documents: string[]) =>
+      JSON.stringify({
+        ...initialState,
+        tracked: { [tech.id]: { ...tracked, documents } },
+      });
+    expect(decode(raw(["A", "A"]), ids).tracked[tech.id].documents).toEqual([
+      "A",
+    ]);
+    expect(() => decode(raw(Array(31).fill("A")), ids)).toThrow();
+    expect(() => decode(raw(["a".repeat(201)]), ids)).toThrow();
+  });
+  it("keeps strings as text and strips unexpected object keys", () => {
+    const name = '<img src=x onerror="alert(1)">';
+    const restored = decode(
+      JSON.stringify({
+        ...initialState,
+        profile: { ...profile, name, extra: "untrusted" },
+      }),
+      ids,
+    );
+    expect(restored.profile.name).toBe(name);
+    expect(restored.profile).not.toHaveProperty("extra");
+  });
+  it("normalizes invalid filter options and limits query work", () => {
+    const filters = readFilters(
+      new URLSearchParams({
+        query: "a".repeat(300),
+        level: "Invented",
+        sort: "javascript:alert(1)",
+        deadline: "never",
+        fit: "100%",
+      }),
+    );
+    expect(filters.query).toHaveLength(200);
+    expect({ ...filters, query: "" }).toEqual(defaultFilters);
+    expect(
+      readFilters(
+        new URLSearchParams({
+          field: "Science",
+          deadline: "soon",
+          sort: "award",
+        }),
+      ),
+    ).toMatchObject({ field: "Science", deadline: "soon", sort: "award" });
   });
 });

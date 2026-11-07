@@ -13,6 +13,7 @@ import {
 import { catalog } from "./catalog";
 import {
   defaultFilters,
+  readFilters,
   discover,
   levels,
   fields,
@@ -165,6 +166,7 @@ export function Discovery() {
             <Search size={21} />
             <input
               aria-label="Search scholarships"
+              maxLength={200}
               placeholder="Search scholarships or providers…"
               value={filters.query}
               onChange={(e) => set("query", e.target.value)}
@@ -216,16 +218,4 @@ export function Discovery() {
       </div>
     </>
   );
-}
-
-function readFilters(params: URLSearchParams): Filters {
-  return {
-    ...defaultFilters,
-    ...Object.fromEntries(
-      Object.entries(defaultFilters).map(([key, value]) => [
-        key,
-        params.get(key) ?? value,
-      ]),
-    ),
-  } as Filters;
 }

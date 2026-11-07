@@ -494,3 +494,120 @@ test("long names, full catalog, and dialog names remain usable on mobile", async
   );
   await page.keyboard.press("Escape");
 });
+
+test("untrusted strings remain text and invalid URL options recover", async ({
+  page,
+}) => {
+  const payload = '<img src=x onerror="window.__injected=true">';
+  await page.addInitScript((text) => {
+    if (!localStorage.getItem("grantly:demo:v1"))
+      localStorage.setItem(
+        "grantly:demo:v1",
+        JSON.stringify({
+          version: 1,
+          profile: {
+            name: text,
+            level: "",
+            field: "",
+            region: "",
+            marks: "",
+            income: "",
+          },
+          tracked: {
+            "next-gen-tech": {
+              stage: "saved",
+              documents: [],
+              notes: text,
+              updated: "2026-11-07T00:00:00Z",
+            },
+          },
+        }),
+      );
+  }, payload);
+  await page.goto("/scholarships/next-gen-tech");
+  await expect(
+    page.getByRole("textbox", { name: "Personal notes" }),
+  ).toHaveValue(payload);
+  await expect(page.locator(".profile-link")).toContainText(payload);
+  await expect(page.locator('img[src="x"]')).toHaveCount(0);
+  expect(await page.evaluate(() => Object.hasOwn(window, "__injected"))).toBe(
+    false,
+  );
+  await page.goto(
+    "/discover?level=invalid&sort=javascript%3Aalert(1)&deadline=never",
+  );
+  await expect(page.getByLabel("Education level", { exact: true })).toHaveValue(
+    "",
+  );
+  await expect(page.getByLabel("Sort by")).toHaveValue("relevance");
+  await expect(page.locator(".scholarship-card")).toHaveCount(12);
+});
+
+test("route navigation moves focus and failed route assets have recovery", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await expect(
+    page.getByRole("heading", { name: "Your scholarship workspace." }),
+  ).toBeVisible();
+  await page.route("**/assets/Profile-*.js", (route) => route.abort());
+  await page.getByRole("link", { name: "My profile", exact: true }).click();
+  await expect(page.locator("#main-content")).toBeFocused();
+  await expect(
+    page.getByRole("heading", { name: "This page couldn’t load." }),
+  ).toBeVisible();
+  await page.unroute("**/assets/Profile-*.js");
+  await page.getByRole("button", { name: "Reload page" }).click();
+  await expect(
+    page.getByRole("heading", { name: "Student profile", exact: true }),
+  ).toBeVisible();
+});
+
+test("production discovery records lab paint and layout stability", async ({
+  page,
+}, testInfo) => {
+  await page.addInitScript(() => {
+    const metrics = { lcpMs: 0, cumulativeLayoutShift: 0 };
+    Object.assign(window, { grantlyLabMetrics: metrics });
+    new PerformanceObserver((list) => {
+      metrics.lcpMs = list.getEntries().at(-1)?.startTime ?? 0;
+    }).observe({ type: "largest-contentful-paint", buffered: true });
+    new PerformanceObserver((list) => {
+      for (const entry of list.getEntries()) {
+        const shift = entry as PerformanceEntry & {
+          hadRecentInput: boolean;
+          value: number;
+        };
+        if (!shift.hadRecentInput) metrics.cumulativeLayoutShift += shift.value;
+      }
+    }).observe({ type: "layout-shift", buffered: true });
+  });
+  await page.goto("/discover");
+  await expect(page.locator(".scholarship-card")).toHaveCount(12);
+  await page.evaluate(() => document.fonts.ready);
+  // Allow the browser to paint the settled font/layout before collecting observations.
+  await page.evaluate(
+    () =>
+      new Promise<void>((resolve) =>
+        requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
+      ),
+  );
+  const metrics = await page.evaluate(
+    () =>
+      (
+        window as unknown as {
+          grantlyLabMetrics: { lcpMs: number; cumulativeLayoutShift: number };
+        }
+      ).grantlyLabMetrics,
+  );
+  console.log(
+    "Production lab metrics (unthrottled Chromium, not field Core Web Vitals):",
+    JSON.stringify(metrics),
+  );
+  await testInfo.attach("production-lab-metrics", {
+    body: JSON.stringify(metrics),
+    contentType: "application/json",
+  });
+  expect(metrics.lcpMs).toBeGreaterThan(0);
+  expect(metrics.cumulativeLayoutShift).toBeLessThan(0.1);
+});

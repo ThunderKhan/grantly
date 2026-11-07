@@ -402,13 +402,6 @@ nav > a.active {
   align-items: center;
   margin: 0 0 var(--space-4);
 }
-.local-label {
-  font-size: var(--text-caption);
-  color: var(--muted);
-  display: flex;
-  gap: var(--space-2);
-  align-items: center;
-}
 .welcome-band {
   background: var(--pale);
   border-radius: 24px 24px 40px 24px;
@@ -722,12 +715,6 @@ nav > a.active {
   padding-top: var(--space-4);
 }
 
-.dashboard-disclosure {
-  font-size: var(--text-caption);
-  color: var(--muted);
-  margin: var(--space-4) var(--space-2);
-}
-
 .logo-mark.small {
   width: 31px;
   height: 31px;
@@ -894,14 +881,6 @@ label input {
   padding: var(--space-1) var(--space-2);
   border-radius: 6px;
   color: #3e5739;
-}
-.sample-note {
-  font-size: var(--text-caption);
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  margin-bottom: var(--space-4);
-  color: var(--muted);
 }
 .empty {
   border: 1px dashed var(--control-border);
@@ -1077,20 +1056,6 @@ label input {
   gap: var(--space-2);
   text-decoration: underline;
 }
-.tracking-summary {
-  background: #edf3e8;
-  border: 1px solid #dfe8d9;
-  border-radius: 13px;
-  padding: var(--space-4) var(--space-5);
-  display: flex;
-  gap: var(--space-3);
-  align-items: center;
-  margin-bottom: var(--space-7);
-}
-.tracking-summary p {
-  font-size: var(--text-caption);
-  color: var(--mint-ink);
-}
 .stage-tabs {
   display: flex;
   gap: var(--space-2);
@@ -1214,15 +1179,6 @@ progress::-moz-progress-bar {
 .tracker-next p {
   font-size: var(--text-sm);
   margin-top: var(--space-1);
-}
-.small-footnote {
-  font-size: var(--text-caption);
-  color: var(--muted);
-  display: flex;
-  gap: var(--space-2);
-  align-items: center;
-  justify-content: center;
-  margin: var(--space-6);
 }
 .back-link {
   font-size: var(--text-caption);
@@ -1492,15 +1448,6 @@ progress::-moz-progress-bar {
   font-size: 1.5rem;
   margin: var(--space-2) 0 var(--space-4);
 }
-.detail-integrity {
-  display: flex;
-  gap: var(--space-2);
-  color: var(--muted);
-  padding: 0 var(--space-2);
-}
-.detail-integrity p {
-  font-size: var(--text-caption);
-}
 .deadline-list {
   margin: var(--space-5) 0;
 }
@@ -1769,11 +1716,6 @@ progress::-moz-progress-bar {
     grid-template-columns: 1fr 1fr;
     gap: var(--space-5);
   }
-
-  .dashboard-disclosure {
-    grid-column: 1/-1;
-    margin: 0 var(--space-1);
-  }
   .welcome-band {
     padding: var(--space-7);
     min-height: 250px;
@@ -1854,9 +1796,6 @@ progress::-moz-progress-bar {
     grid-row: 1;
     grid-template-columns: 1fr 1fr;
     align-items: start;
-  }
-  .detail-integrity {
-    grid-column: 1/-1;
   }
   .detail-main {
     grid-row: 2;
@@ -1947,14 +1886,6 @@ progress::-moz-progress-bar {
   }
   .dashboard-welcome {
     margin-bottom: var(--space-3);
-  }
-  .local-label {
-    font-size: var(--text-caption);
-    gap: var(--space-1);
-  }
-  .local-label .tiny-dot {
-    width: 5px;
-    height: 5px;
   }
   .welcome-band {
     border-radius: 20px 20px 32px 20px;
@@ -2106,14 +2037,6 @@ progress::-moz-progress-bar {
     font-size: var(--text-caption);
     min-height: 44px;
   }
-  .sample-note {
-    font-size: var(--text-caption);
-    line-height: 1.7;
-    align-items: start;
-  }
-  .sample-note .tiny-dot {
-    margin-top: var(--space-1);
-  }
   .form-heading {
     gap: var(--space-3);
   }
@@ -2154,17 +2077,6 @@ progress::-moz-progress-bar {
   .success-message {
     font-size: var(--text-caption);
     padding: var(--space-3);
-  }
-  .tracking-summary {
-    padding: var(--space-4);
-    align-items: start;
-  }
-  .tracking-summary > svg {
-    width: 17px;
-    margin-top: var(--space-1);
-  }
-  .tracking-summary p {
-    font-size: var(--text-caption);
   }
   .stage-tabs {
     gap: var(--space-2);
@@ -2217,16 +2129,9 @@ progress::-moz-progress-bar {
     font-size: var(--text-caption);
     padding: var(--space-2) var(--space-4);
   }
-  .small-footnote {
-    font-size: var(--text-caption);
-    margin: var(--space-6) 0;
-  }
   .detail-aside {
     grid-template-columns: 1fr;
     gap: var(--space-4);
-  }
-  .detail-integrity {
-    grid-column: auto;
   }
   .detail-layout {
     gap: var(--space-6);
@@ -2391,7 +2296,6 @@ progress::-moz-progress-bar {
 .deadline {
   font-size: var(--text-caption);
 }
-.sample-note,
 .recommendation-note {
   font-size: var(--text-caption);
 }
@@ -2874,10 +2778,6 @@ input[aria-invalid="true"] {
     display: inline-flex;
     align-items: center;
   }
-  .small-footnote {
-    align-items: start;
-    text-align: center;
-  }
   .empty {
     padding: var(--space-8) var(--space-5);
   }
@@ -3063,4 +2963,11 @@ input[aria-invalid="true"] {
   .stat-card strong {
     font-size: 1.875rem;
   }
+}
+
+.route-loading {
+  min-height: 60vh;
+  display: grid;
+  place-items: center;
+  color: var(--muted);
 }

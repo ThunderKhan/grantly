@@ -254,6 +254,9 @@ const isObject = (v: unknown): v is Record<string, unknown> =>
   !!v && typeof v === "object" && !Array.isArray(v);
 export function decode(raw: string | null, ids: readonly string[]): AppState {
   if (raw === null) return structuredClone(initialState);
+  // Bound work before parsing browser-controlled storage.
+  if (raw.length > 100_000)
+    throw new Error("Stored data exceeds workspace limits");
   const v: unknown = JSON.parse(raw);
   if (
     !isObject(v) ||
@@ -271,10 +274,7 @@ export function decode(raw: string | null, ids: readonly string[]): AppState {
     ![...fields, ""].includes(p.field as (typeof fields)[number]) ||
     ![...regions, ""].includes(p.region as (typeof regions)[number]) ||
     ![...incomeBands, ""].includes(p.income as (typeof incomeBands)[number]) ||
-    (p.marks !== "" &&
-      (!Number.isFinite(Number(p.marks)) ||
-        Number(p.marks) < 0 ||
-        Number(p.marks) > 100))
+    !validMarks(p.marks as string)
   )
     throw new Error("Invalid profile values");
   const tracked: Record<string, Tracked> = {};
@@ -285,15 +285,17 @@ export function decode(raw: string | null, ids: readonly string[]): AppState {
       typeof t.stage !== "string" ||
       !Object.hasOwn(stages, t.stage) ||
       !Array.isArray(t.documents) ||
-      t.documents.some((d) => typeof d !== "string") ||
+      t.documents.length > 30 ||
+      t.documents.some((d) => typeof d !== "string" || d.length > 200) ||
       typeof t.notes !== "string" ||
       t.notes.length > 2000 ||
-      typeof t.updated !== "string"
+      typeof t.updated !== "string" ||
+      t.updated.length > 40
     )
       throw new Error("Invalid tracking data");
     tracked[id] = {
       stage: t.stage as Stage,
-      documents: t.documents as string[],
+      documents: [...new Set(t.documents as string[])],
       notes: t.notes,
       updated: t.updated,
     };
@@ -309,5 +311,41 @@ export function decode(raw: string | null, ids: readonly string[]): AppState {
       income: p.income,
     } as Profile,
     tracked,
+  };
+}
+
+// Use the same boundary for form input and persisted data. Unknown stays blank;
+// hexadecimal, whitespace, and exponent strings are not academic percentages.
+export function validMarks(value: string) {
+  return (
+    value === "" ||
+    (/^\d{1,3}(?:\.\d{1,2})?$/.test(value) && Number(value) <= 100)
+  );
+}
+
+export function readFilters(params: URLSearchParams): Filters {
+  const option = (key: keyof Filters, values: readonly string[]) => {
+    const value = params.get(key) ?? defaultFilters[key];
+    return values.includes(value) ? value : defaultFilters[key];
+  };
+  return {
+    query: (params.get("query") ?? "").slice(0, 200),
+    level: option("level", ["", ...levels]),
+    field: option("field", ["", ...fields]),
+    region: option("region", ["", ...regions]),
+    fit: option("fit", [
+      "",
+      "Potential match",
+      "Needs verification",
+      "Review fit",
+    ]),
+    deadline: option("deadline", [
+      "",
+      "upcoming",
+      "soon",
+      "expired",
+      "unknown",
+    ]),
+    sort: option("sort", ["relevance", "deadline", "award"]),
   };
 }

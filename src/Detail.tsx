@@ -12,7 +12,7 @@ import { catalog } from "./catalog";
 import { useStore } from "./store";
 import { dateLabel, deadlineLabel, nextAction, money } from "./model";
 import { ButtonLink, Empty, FitBreakdown, SaveButton } from "./components";
-import { StageSelect } from "./Applications";
+import { StageSelect } from "./StageSelect";
 export function Detail() {
   const { id } = useParams();
   const s = catalog.find((x) => x.id === id);

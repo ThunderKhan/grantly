@@ -22,11 +22,12 @@ npm run typecheck
 npm run lint
 npm test
 npm run build
+npm run check:bundle
 npx playwright install chromium
 npm run test:e2e
 ```
 
-For browser tests outside CI, start the dev server at port 4173 (`npm run dev -- --port 4173`), or set `BASE_URL` to a running deployment. Set `CHROMIUM_PATH` only to use an existing system Chromium. In CI the test configuration starts Vite automatically. The GitHub workflow runs unit, build, and Playwright acceptance checks, including axe WCAG scans at 320, 375, 640, 768, 1280, and 1440px.
+Run `npm run build` before browser tests. Playwright starts the production preview on port 4173 automatically; set `BASE_URL` to test an already running instance instead. Set `CHROMIUM_PATH` only to use an existing system Chromium. The same production preview is tested locally and in CI. The GitHub workflow runs unit, build, and Playwright acceptance checks, including axe WCAG scans at 320, 375, 640, 768, 1280, and 1440px.
 
 ## Working experience
 

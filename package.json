@@ -10,7 +10,9 @@
     "lint": "eslint .",
     "test": "vitest run src",
     "test:e2e": "playwright test",
-    "format": "prettier --write src e2e *.ts *.json *.js index.html"
+    "format": "prettier --write src e2e *.ts *.json *.js index.html",
+    "preview": "vite preview --host 0.0.0.0",
+    "check:bundle": "node scripts/check-bundle.mjs"
   },
   "dependencies": {
     "@fontsource/inter": "^5.2.8",

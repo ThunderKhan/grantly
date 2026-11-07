@@ -102,6 +102,7 @@ export function Confirm({
   children: ReactNode;
 }) {
   const titleId = useId();
+  const descriptionId = useId();
   const ref = useRef<HTMLDialogElement>(null);
   useEffect(() => {
     if (open && !ref.current?.open) ref.current?.showModal();
@@ -112,6 +113,7 @@ export function Confirm({
       ref={ref}
       onCancel={onClose}
       aria-labelledby={titleId}
+      aria-describedby={descriptionId}
       className="confirm"
     >
       <button
@@ -122,7 +124,7 @@ export function Confirm({
         <X size={20} />
       </button>
       <h2 id={titleId}>{title}</h2>
-      <p>{children}</p>
+      <p id={descriptionId}>{children}</p>
       <div className="actions">
         <button className="button secondary" onClick={onClose} autoFocus>
           {cancelLabel}
