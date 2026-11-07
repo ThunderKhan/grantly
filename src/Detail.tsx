@@ -8,6 +8,7 @@ import {
   MapPin,
   CalendarDays,
 } from "lucide-react";
+import { CircularProgress } from "./motion";
 import { catalog } from "./catalog";
 import { useStore } from "./store";
 import { dateLabel, deadlineLabel, nextAction, money } from "./model";
@@ -64,13 +65,9 @@ export function Detail() {
               <div>
                 <h2>Your document checklist</h2>
               </div>
-              <span className="count-pill">
-                {ready} / {s.documents.length}
-              </span>
+              <CircularProgress value={ready} max={s.documents.length} />
             </div>
-            <p className="muted">
-              Check off each document as you prepare it.
-            </p>
+            <p className="muted">Check off each document as you prepare it.</p>
             <div className="checklist">
               {s.documents.map((d) => (
                 <label
@@ -105,7 +102,8 @@ export function Detail() {
             <div className="inline-info">
               <Info size={18} />
               <p>
-                Sample opportunity: a provider application link is not available.
+                Sample opportunity: a provider application link is not
+                available.
               </p>
             </div>
           </section>
@@ -127,9 +125,7 @@ export function Detail() {
                 onChange={(e) => notes(s.id, e.target.value)}
                 placeholder="Questions to check, a draft idea, or a decision…"
               />
-              <small>
-                Saved automatically · {t.notes.length}/2000
-              </small>
+              <small>Saved automatically · {t.notes.length}/2000</small>
             </section>
           )}
         </div>

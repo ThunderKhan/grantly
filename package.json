@@ -18,6 +18,7 @@
     "@fontsource/inter": "^5.2.8",
     "@fontsource/titillium-web": "^5.2.7",
     "lucide-react": "^0.468.0",
+    "motion": "^14.10.1",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-router-dom": "^7.9.5"

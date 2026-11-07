@@ -241,14 +241,6 @@ main {
 .reset-text:hover {
   color: var(--ink);
 }
-.tiny-dot {
-  display: inline-block;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--focus);
-  flex-shrink: 0;
-}
 .row {
   display: flex;
   align-items: center;
@@ -1134,25 +1126,6 @@ label input {
   font-size: var(--text-caption);
   margin-bottom: var(--space-2);
 }
-progress {
-  height: 6px;
-  width: 100%;
-  border: 0;
-  appearance: none;
-  display: block;
-  border-radius: 10px;
-  overflow: hidden;
-  background: var(--surface-soft);
-}
-progress::-webkit-progress-bar {
-  background: var(--surface-soft);
-}
-progress::-webkit-progress-value {
-  background: var(--focus);
-}
-progress::-moz-progress-bar {
-  background: var(--focus);
-}
 .stage-select {
   font-size: var(--text-caption);
   font-weight: 500;
@@ -1287,13 +1260,6 @@ progress::-moz-progress-bar {
   font-size: var(--text-caption);
   color: var(--muted);
   margin-top: var(--space-2);
-}
-.count-pill {
-  background: var(--pale);
-  padding: var(--space-2) var(--space-3);
-  border-radius: 999px;
-  font-size: var(--text-caption);
-  white-space: nowrap;
 }
 .checklist {
   margin: var(--space-6) 0 var(--space-4);
@@ -2412,9 +2378,7 @@ button:disabled {
 .card-value strong,
 .award-panel h2,
 .date-block,
-.nav-count,
-.count-pill,
-progress {
+.nav-count {
   font-variant-numeric: tabular-nums;
 }
 .nav-count,
@@ -2859,10 +2823,6 @@ input[aria-invalid="true"] {
   color: var(--mint-ink);
   margin: var(--space-4) 0 var(--space-3);
 }
-.profile-snapshot progress {
-  height: 6px;
-  margin-bottom: var(--space-2);
-}
 .stat-card {
   border: 0;
   border-radius: 0;
@@ -2960,4 +2920,95 @@ input[aria-invalid="true"] {
   display: grid;
   place-items: center;
   color: var(--muted);
+}
+/* Purposeful motion; all targets remain operable throughout transitions. */
+.motion-item > .scholarship-card {
+  height: 100%;
+}
+.stage-tabs {
+  position: relative;
+  isolation: isolate;
+}
+.stage-tabs button {
+  position: relative;
+  z-index: 1;
+}
+.stage-indicator {
+  position: absolute;
+  z-index: 0;
+  background: var(--focus);
+  border-radius: 999px;
+  transform-origin: top left;
+  pointer-events: none;
+}
+.motion-progress {
+  height: 6px;
+  width: 100%;
+  background: var(--surface-soft);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.motion-progress > span {
+  display: block;
+  height: 100%;
+  background: var(--focus);
+  transform-origin: left;
+  transition: transform 240ms var(--ease-out);
+}
+.profile-snapshot .motion-progress {
+  margin-bottom: var(--space-2);
+}
+.document-ring {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  font-size: var(--text-sm);
+}
+.document-ring svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+  fill: none;
+  stroke-width: 7;
+}
+.number-ticker {
+  font-variant-numeric: tabular-nums;
+}
+@keyframes settle {
+  from {
+    opacity: 0.6;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes saved {
+  from {
+    transform: scale(0.8);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .dashboard-body,
+  .confirm[open],
+  .success-message,
+  .field-error,
+  .filter-fields.expanded,
+  .empty,
+  .detail-main .criteria-list {
+    animation: settle 200ms var(--ease-out);
+  }
+  .save-feedback,
+  .checklist .complete svg {
+    animation: saved 200ms var(--ease-out);
+  }
 }

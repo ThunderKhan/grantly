@@ -10,6 +10,7 @@ import {
   RotateCcw,
   ChevronDown,
 } from "lucide-react";
+import { AnimatedGroup } from "./motion";
 import { catalog } from "./catalog";
 import {
   defaultFilters,
@@ -199,11 +200,11 @@ export function Discovery() {
             </label>
           </div>
           {results.length ? (
-            <div className="cards-grid">
+            <AnimatedGroup className="cards-grid">
               {results.map((s) => (
                 <ScholarshipCard key={s.id} s={s} />
               ))}
-            </div>
+            </AnimatedGroup>
           ) : (
             <Empty
               title="Let’s widen the search."

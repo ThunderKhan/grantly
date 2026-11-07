@@ -164,7 +164,12 @@ export function SaveButton({
         aria-pressed={saved}
         onClick={() => (saved ? setConfirm(true) : track(s.id))}
       >
-        <Bookmark size={18} fill={saved ? "currentColor" : "none"} />
+        <Bookmark
+          key={String(saved)}
+          className={saved ? "save-feedback" : undefined}
+          size={18}
+          fill={saved ? "currentColor" : "none"}
+        />
         {!compact && (saved ? "Saved opportunity" : "Save opportunity")}
       </button>
       <Confirm

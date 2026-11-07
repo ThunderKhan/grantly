@@ -679,3 +679,145 @@ test("landing page connects discovery, saving, subjects and the workspace withou
   await expect(page).toHaveURL(/\/profile$/);
   expect(errors).toEqual([]);
 });
+
+for (const width of [375, 1280]) {
+  test(`motion preserves stage filtering and document progress at ${width}px`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto("/discover");
+    await expect(page.locator("article")).toHaveCount(12);
+    const first = page
+      .locator("article")
+      .filter({
+        has: page.getByRole("link", {
+          name: "Next Gen Tech Scholarship",
+          exact: true,
+        }),
+      });
+    await first.getByRole("button", { name: /^Save / }).click();
+    await page
+      .getByRole("link", { name: "Next Gen Tech Scholarship", exact: true })
+      .click();
+    const progress = page.getByRole("progressbar", {
+      name: "Document readiness",
+      exact: true,
+    });
+    await expect(progress).toHaveAttribute("aria-valuenow", "0");
+    await page
+      .getByRole("checkbox", {
+        name: "Latest academic transcript",
+        exact: true,
+      })
+      .check();
+    await expect(progress).toHaveAttribute("aria-valuenow", "1");
+    await expect(progress).toHaveAttribute(
+      "aria-valuetext",
+      "1 of 4 documents ready",
+    );
+    await expect
+      .poll(async () =>
+        progress
+          .locator("circle")
+          .last()
+          .evaluate((el) =>
+            Math.round(parseFloat(getComputedStyle(el).strokeDashoffset)),
+          ),
+      )
+      .toBe(212);
+    await page
+      .getByRole("link", { name: "My Applications 1", exact: true })
+      .click();
+    await page.getByRole("button", { name: /^Preparing/ }).click();
+    await expect(
+      page.getByRole("heading", {
+        name: "Nothing at this stage.",
+        exact: true,
+      }),
+    ).toBeVisible();
+    await page.getByRole("button", { name: /^Saved/ }).click();
+    await expect(page.locator(".tracker-card")).toHaveCount(1);
+    await expect
+      .poll(async () =>
+        page.evaluate(() => {
+          const tab = document
+            .querySelector('.stage-tabs button[aria-pressed="true"]')!
+            .getBoundingClientRect();
+          const indicator = document
+            .querySelector(".stage-indicator")!
+            .getBoundingClientRect();
+          return (
+            Math.abs(tab.left - indicator.left) +
+            Math.abs(tab.width - indicator.width) +
+            Math.abs(tab.bottom + 3 - indicator.top)
+          );
+        }),
+      )
+      .toBeLessThan(2);
+    await page.reload();
+    await expect(
+      page.getByRole("progressbar", {
+        name: "Documents ready for Next Gen Tech Scholarship",
+      }),
+    ).toHaveAttribute("aria-valuenow", "1");
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth <= innerWidth,
+      ),
+    ).toBe(true);
+  });
+}
+
+test("reduced motion removes animated movement and counters update immediately", async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.goto("/discover");
+  await expect(page.locator("article")).toHaveCount(12);
+  const running = () =>
+    page.evaluate(
+      () =>
+        document.getAnimations().filter((a) => a.playState === "running")
+          .length,
+    );
+  expect(await running()).toBe(0);
+  await page
+    .getByRole("textbox", { name: "Search scholarships" })
+    .fill("next gen");
+  await expect(page.locator("article")).toHaveCount(1);
+  await page
+    .getByRole("button", {
+      name: "Save Next Gen Tech Scholarship",
+      exact: true,
+    })
+    .click();
+  expect(await running()).toBe(0);
+  await page.getByRole("link", { name: "Dashboard", exact: true }).click();
+  await expect(
+    page.getByRole("link", { name: "Saved opportunities 1", exact: true }),
+  ).toBeVisible();
+  await expect(page.locator(".number-ticker").first()).toHaveText("1");
+  await page
+    .locator(".cards-grid")
+    .getByRole("button", { name: /^Save / })
+    .first()
+    .click();
+  await expect(
+    page.getByRole("link", { name: "Saved opportunities 2", exact: true }),
+  ).toBeVisible();
+  await expect(page.locator(".number-ticker").first()).toHaveText("2");
+  expect(await running()).toBe(0);
+  await page.getByRole("link", { name: "Discover", exact: true }).click();
+  await page.emulateMedia({ reducedMotion: "no-preference" });
+  await page
+    .getByRole("textbox", { name: "Search scholarships" })
+    .fill("next gen");
+  await page.getByRole("textbox", { name: "Search scholarships" }).clear();
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await expect(page.locator("article")).toHaveCount(12);
+  await expect.poll(running).toBe(0);
+  const transforms = await page
+    .locator(".motion-item")
+    .evaluateAll((els) => els.map((el) => getComputedStyle(el).transform));
+  expect(transforms.every((t) => t === "none")).toBe(true);
+});

@@ -8,6 +8,8 @@ import {
   ClipboardList,
   Compass,
 } from "lucide-react";
+import { NumberTicker } from "./NumberTicker";
+import { AnimatedProgress } from "./motion";
 import { catalog } from "./catalog";
 import { useStore } from "./store";
 import { daysUntil, nextAction, relevance } from "./model";
@@ -81,10 +83,10 @@ export function Dashboard() {
           <p>
             <strong>{profileCount} of 5</strong> details added
           </p>
-          <progress
+          <AnimatedProgress
             value={profileCount}
             max={5}
-            aria-label="Matching profile details added"
+            label="Matching profile details added"
           />
           <Link to="/profile" className="text-link">
             {profileCount ? "Edit profile" : "Set up your profile"}
@@ -98,7 +100,9 @@ export function Dashboard() {
               <span className="stat-label">{label}</span>
               <Icon size={18} />
             </div>
-            <strong>{value}</strong>
+            <strong>
+              <NumberTicker value={value} />
+            </strong>
           </Link>
         ))}
       </div>

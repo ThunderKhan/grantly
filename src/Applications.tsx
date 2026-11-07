@@ -1,4 +1,5 @@
 import { Link, useSearchParams } from "react-router-dom";
+import { AnimatedGroup, AnimatedProgress, StageIndicator } from "./motion";
 import { FileText } from "lucide-react";
 import { catalog } from "./catalog";
 import { useStore } from "./store";
@@ -36,6 +37,7 @@ export function Applications() {
         role="group"
         aria-label="Filter application stage"
       >
+        <StageIndicator value={stage} />
         {[["", "All applications"], ...Object.entries(stages)].map(
           ([key, label]) => (
             <button
@@ -56,7 +58,7 @@ export function Applications() {
         )}
       </div>
       {results.length ? (
-        <div className="tracker-list">
+        <AnimatedGroup className="tracker-list">
           {results.map((s) => {
             const t = state.tracked[s.id];
             const done = s.documents.filter((d) =>
@@ -85,10 +87,10 @@ export function Applications() {
                       <FileText size={16} /> {done} / {s.documents.length}{" "}
                       documents ready
                     </span>
-                    <progress
+                    <AnimatedProgress
                       value={done}
                       max={s.documents.length}
-                      aria-label={`Documents ready for ${s.title}`}
+                      label={`Documents ready for ${s.title}`}
                     />
                   </div>
                   <StageSelect s={s} />
@@ -108,7 +110,7 @@ export function Applications() {
               </article>
             );
           })}
-        </div>
+        </AnimatedGroup>
       ) : (
         <Empty
           title={
