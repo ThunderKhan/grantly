@@ -110,7 +110,7 @@ test("complete profile → discovery → eligibility → save → documents → 
     .selectOption("decision_received");
   await expect(
     page.getByRole("heading", {
-      name: "Record your outcome in your personal notes.",
+      name: "Record your decision outcome and date.",
     }),
   ).toBeVisible();
   await page
@@ -457,6 +457,9 @@ test("long names, full catalog, and dialog names remain usable on mobile", async
               "learning-without-limits",
               "capital-scholars",
               "southern-innovators",
+              "ugc-pg-national",
+              "ishan-uday-ner",
+              "pm-yasasvi-college",
             ].map((id) => [
               id,
               {
@@ -828,7 +831,7 @@ test("official scholarship handoff and no fabricated eligibility verdict", async
   await page.getByRole("textbox", { name: "Search scholarships" }).fill("National Scholarship for Post Graduate Studies");
   await expect(page.locator("article")).toHaveCount(1);
   await expect(page.locator("article")).toContainText("Officially listed scheme");
-  await page.getByRole("link", { name: "National Scholarship for Post Graduate Studies" }).click();
+  await page.getByRole("link", { name: "National Scholarship for Post Graduate Studies", exact: true }).click();
   await expect(page.getByText("Additional official conditions")).toBeVisible();
   await expect(page.getByRole("link", { name: "Read official scheme details" })).toHaveAttribute("href", "https://www.ugc.gov.in/Scholarships/stu_Scholarship6");
   await expect(page.getByRole("link", { name: "Open official application portal" })).toHaveAttribute("href", "https://scholarships.gov.in/Students");
