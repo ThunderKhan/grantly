@@ -185,9 +185,15 @@ export function prioritizedTracked(
 ) {
   const stageRank = (stage: Stage) =>
     stage === "preparing" ? 0 : stage === "saved" ? 1 : stage === "applied" ? 2 : 3;
+  const pending = (stage: Stage) =>
+    stage === "preparing" || stage === "saved" ? 0 : 1;
   return [...items].sort((a, b) => {
-    const first = stageRank(tracked[a.id].stage) - stageRank(tracked[b.id].stage);
-    return first || compareDeadlinePriority(a.deadline, b.deadline, now);
+    const active = pending(tracked[a.id].stage) - pending(tracked[b.id].stage);
+    // Within actionable items, an approaching deadline beats an expired
+    // item regardless of which preparation stage it happens to be in.
+    return active ||
+      compareDeadlinePriority(a.deadline, b.deadline, now) ||
+      stageRank(tracked[a.id].stage) - stageRank(tracked[b.id].stage);
   });
 }
 export function deadlineLabel(date?: string, now = new Date()) {
