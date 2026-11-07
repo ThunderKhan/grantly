@@ -8,7 +8,7 @@ export function makeCalendarEvent(s: Scholarship) {
   if (!Number.isFinite(endDate.valueOf())) return null;
   endDate.setUTCDate(endDate.getUTCDate() + 1);
   const end = endDate.toISOString().slice(0, 10).replaceAll("-", "");
-  const stamp = new Date().toISOString().replaceAll("-", "").replaceAll(":", "").replace(/\\.\\d{3}Z$/, "Z");
+  const stamp = new Date().toISOString().replaceAll("-", "").replaceAll(":", "").replace(/\.\d{3}Z$/, "Z");
   const safe = (value: string) => value.replaceAll("\\", "\\\\").replaceAll("\n", "\\n").replaceAll(",", "\\,").replaceAll(";", "\\;");
   const title = `${s.isSample ? "Sample deadline" : "Check deadline"}: ${s.title}`;
   const description = s.isSample
