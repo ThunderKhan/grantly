@@ -64,7 +64,6 @@ export function AnimatedGroup({
           animate(
             element,
             {
-              opacity: [0.65, 1],
               transform: ["translateY(6px)", "translateY(0px)"],
             },
             { duration: 0.22, delay: Math.min(entering++ * 0.02, 0.08), ease },
@@ -90,7 +89,6 @@ export function AnimatedGroup({
       controls.forEach((control) => control.stop());
       elements.forEach((element) => {
         element.style.removeProperty("transform");
-        element.style.removeProperty("opacity");
       });
     };
   }, [signature, reduced, animate, scope]);
