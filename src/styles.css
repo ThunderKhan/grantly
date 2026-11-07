@@ -3186,3 +3186,12 @@ input[aria-invalid="true"] {
   overflow: hidden;
   clip-path: inset(50%);
 }
+
+/* Keep scholarship save targets comfortably above 44px even when a 320px
+   layout lands on sub-pixel coordinates during card entrance transforms. */
+.scholarship-card .card-top > .icon-button {
+  width: 46px;
+  height: 46px;
+  min-width: 46px;
+  min-height: 46px;
+}
