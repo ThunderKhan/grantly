@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from "react";
+import { useRef, useState, type FormEvent } from "react";
 import {
   Check,
   ArrowRight,
@@ -20,29 +20,46 @@ import { Link } from "react-router-dom";
 export function Profile() {
   const { state, saveProfile, reset } = useStore();
   const [form, setForm] = useState<ProfileType>(state.profile);
+  const marksRef = useRef<HTMLInputElement>(null);
+  const [marksError, setMarksError] = useState("");
   const [saved, setSaved] = useState(false);
   const [confirm, setConfirm] = useState(false);
   const count = ["level", "field", "region", "marks", "income"].filter(
     (k) => form[k as keyof ProfileType],
   ).length;
+  const dirty = JSON.stringify(form) !== JSON.stringify(state.profile);
+  function validateMarks(value: string) {
+    return value !== "" &&
+      (!Number.isFinite(Number(value)) ||
+        Number(value) < 0 ||
+        Number(value) > 100)
+      ? "Enter a percentage from 0 to 100, or leave this blank."
+      : "";
+  }
   function update(key: keyof ProfileType, value: string) {
     setSaved(false);
+    if (key === "marks" && marksError) setMarksError(validateMarks(value));
     setForm((v) => ({ ...v, [key]: value }));
   }
   function submit(e: FormEvent) {
     e.preventDefault();
+    const error = validateMarks(form.marks);
+    setMarksError(error);
+    if (error) {
+      marksRef.current?.focus();
+      return;
+    }
     saveProfile({ ...form, name: form.name.trim() });
     setSaved(true);
   }
   return (
     <>
       <SectionTitle
-        eyebrow="YOUR STARTING POINT"
         title="A profile. A clearer path."
         description="Tell us a little about your studies. We’ll explain how each opportunity fits."
       />
       <div className="profile-layout">
-        <form onSubmit={submit} className="panel profile-form">
+        <form noValidate onSubmit={submit} className="panel profile-form">
           <div className="form-heading">
             <span className="profile-avatar">
               <UserRound size={25} />
@@ -87,6 +104,12 @@ export function Profile() {
             <label>
               Latest academic result (%)
               <input
+                ref={marksRef}
+                aria-invalid={Boolean(marksError)}
+                aria-describedby={
+                  marksError ? "marks-error marks-hint" : "marks-hint"
+                }
+                onBlur={() => setMarksError(validateMarks(form.marks))}
                 type="number"
                 min="0"
                 max="100"
@@ -96,11 +119,19 @@ export function Profile() {
                 onChange={(e) => update("marks", e.target.value)}
                 placeholder="Leave blank if unknown"
               />
-              <small>
+              {marksError && (
+                <span className="field-error" id="marks-error" role="alert">
+                  {marksError}
+                </span>
+              )}
+              <small id="marks-hint">
                 Use a percentage only. Don’t enter an unconverted GPA.
               </small>
             </label>
           </div>
+          {dirty && (
+            <p className="unsaved-note">Your changes haven’t been saved yet.</p>
+          )}
           <div className="form-footer">
             <button className="button" type="submit">
               <Check size={17} /> Save profile
@@ -111,6 +142,7 @@ export function Profile() {
               onClick={() => {
                 setForm({ ...emptyProfile });
                 setSaved(false);
+                setMarksError("");
               }}
             >
               Clear form
@@ -127,7 +159,6 @@ export function Profile() {
         </form>
         <aside className="profile-aside">
           <div className="mint-panel">
-            <span className="eyebrow">A LITTLE CONTEXT HELPS</span>
             <h2>
               More clarity.
               <br />
@@ -185,6 +216,8 @@ export function Profile() {
           setSaved(false);
         }}
         title="Reset your local workspace?"
+        confirmLabel="Reset workspace"
+        cancelLabel="Keep workspace"
       >
         This clears your profile, all saved opportunities, notes, and document
         readiness in this browser. This cannot be undone.

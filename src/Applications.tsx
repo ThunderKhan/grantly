@@ -51,7 +51,6 @@ export function Applications() {
   return (
     <>
       <SectionTitle
-        eyebrow="FROM OPPORTUNITY TO ACTION"
         title="Your next chapter, in progress."
         description="Keep your shortlist, preparation, and decisions in one place."
       >
@@ -95,7 +94,7 @@ export function Applications() {
                 <div className="tracker-title">
                   <span className="provider-mark">{s.mark}</span>
                   <div>
-                    <span className="eyebrow">ILLUSTRATIVE SAMPLE</span>
+                    <span className="context-label">ILLUSTRATIVE SAMPLE</span>
                     <h2>
                       <Link to={`/scholarships/${s.id}`}>{s.title}</Link>
                     </h2>
@@ -123,7 +122,7 @@ export function Applications() {
                 </div>
                 <div className="tracker-next">
                   <div>
-                    <span className="eyebrow">NEXT ACTION</span>
+                    <span className="context-label">NEXT ACTION</span>
                     <p>{nextAction(s, state.profile, t)}</p>
                   </div>
                   <Link

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 import {
   ArrowUpRight,
@@ -10,6 +10,8 @@ import {
   X,
   AlertCircle,
   ArrowRight,
+  Asterisk,
+  Sparkle,
 } from "lucide-react";
 import {
   assess,
@@ -48,12 +50,10 @@ export function ButtonLink({
   );
 }
 export function SectionTitle({
-  eyebrow,
   title,
   description,
   children,
 }: {
-  eyebrow?: string;
   title: string;
   description?: string;
   children?: ReactNode;
@@ -61,7 +61,6 @@ export function SectionTitle({
   return (
     <div className="section-heading">
       <div>
-        {eyebrow && <span className="eyebrow">{eyebrow}</span>}
         <h1>{title}</h1>
         {description && <p>{description}</p>}
       </div>
@@ -95,13 +94,18 @@ export function Confirm({
   onConfirm,
   title,
   children,
+  confirmLabel = "Confirm removal",
+  cancelLabel = "Keep it",
 }: {
+  confirmLabel?: string;
+  cancelLabel?: string;
   open: boolean;
   onClose: () => void;
   onConfirm: () => void;
   title: string;
   children: ReactNode;
 }) {
+  const titleId = useId();
   const ref = useRef<HTMLDialogElement>(null);
   useEffect(() => {
     if (open && !ref.current?.open) ref.current?.showModal();
@@ -111,7 +115,7 @@ export function Confirm({
     <dialog
       ref={ref}
       onCancel={onClose}
-      aria-labelledby="confirm-title"
+      aria-labelledby={titleId}
       className="confirm"
     >
       <button
@@ -121,11 +125,11 @@ export function Confirm({
       >
         <X size={20} />
       </button>
-      <h2 id="confirm-title">{title}</h2>
+      <h2 id={titleId}>{title}</h2>
       <p>{children}</p>
       <div className="actions">
         <button className="button secondary" onClick={onClose} autoFocus>
-          Keep it
+          {cancelLabel}
         </button>
         <button
           className="button"
@@ -134,7 +138,7 @@ export function Confirm({
             onClose();
           }}
         >
-          Confirm removal
+          {confirmLabel}
         </button>
       </div>
     </dialog>
@@ -259,7 +263,6 @@ export function FitBreakdown({ s }: { s: Scholarship }) {
     <section className="panel">
       <div className="row">
         <div>
-          <span className="eyebrow">NO GUESSWORK</span>
           <h2>Why this may fit you</h2>
         </div>
         <FitBadge s={s} />
@@ -319,8 +322,12 @@ export function PaperIllustration() {
           <Check size={15} /> Your next chapter
         </div>
       </div>
-      <span className="art-spark one">✳</span>
-      <span className="art-spark two">✦</span>
+      <span className="art-spark one">
+        <Asterisk size={48} />
+      </span>
+      <span className="art-spark two">
+        <Sparkle size={36} />
+      </span>
       <span className="art-ticket">
         <Check size={15} /> Opportunity, organized.
       </span>

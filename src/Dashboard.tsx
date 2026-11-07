@@ -9,11 +9,19 @@ import {
   Sparkles,
   Check,
   CircleHelp,
+  UserRound,
+  ClipboardList,
+  Compass,
 } from "lucide-react";
 import { catalog } from "./catalog";
 import { useStore } from "./store";
 import { daysUntil, nextAction, relevance } from "./model";
-import { ButtonLink, PaperIllustration, ScholarshipCard } from "./components";
+import {
+  ButtonLink,
+  Empty,
+  PaperIllustration,
+  ScholarshipCard,
+} from "./components";
 export function Dashboard() {
   const { state, storageError } = useStore();
   const tracked = catalog.filter((s) => state.tracked[s.id]);
@@ -66,7 +74,6 @@ export function Dashboard() {
   return (
     <>
       <div className="dashboard-welcome">
-        <span className="eyebrow">YOUR SCHOLARSHIP WORKSPACE</span>
         <span className="local-label">
           <span className="tiny-dot" />{" "}
           {storageError
@@ -106,7 +113,6 @@ export function Dashboard() {
         <div>
           <div className="subheading">
             <div>
-              <span className="eyebrow">A LITTLE DIRECTION</span>
               <h2>Make your next move.</h2>
             </div>
             <Sparkles size={21} />
@@ -114,7 +120,9 @@ export function Dashboard() {
           <div className="next-actions">
             {profileCount < 5 && (
               <Link to="/profile" className="action-row">
-                <span className="action-number">01</span>
+                <span className="action-icon">
+                  <UserRound size={18} />
+                </span>
                 <div>
                   <h3>
                     {profileCount
@@ -129,14 +137,14 @@ export function Dashboard() {
                 <ArrowUpRight size={19} />
               </Link>
             )}
-            {tracked.slice(0, profileCount < 5 ? 2 : 3).map((s, i) => (
+            {tracked.slice(0, profileCount < 5 ? 2 : 3).map((s) => (
               <Link
                 to={`/scholarships/${s.id}`}
                 key={s.id}
                 className="action-row"
               >
-                <span className="action-number">
-                  {String(i + (profileCount < 5 ? 2 : 1)).padStart(2, "0")}
+                <span className="action-icon">
+                  <ClipboardList size={18} />
                 </span>
                 <div>
                   <h3>{nextAction(s, state.profile, state.tracked[s.id])}</h3>
@@ -147,8 +155,8 @@ export function Dashboard() {
             ))}
             {!tracked.length && (
               <Link to="/discover" className="action-row">
-                <span className="action-number">
-                  {profileCount < 5 ? "02" : "01"}
+                <span className="action-icon">
+                  <Compass size={18} />
                 </span>
                 <div>
                   <h3>Find an opportunity worth pursuing</h3>
@@ -163,9 +171,6 @@ export function Dashboard() {
           </div>
           <div className="subheading recommendation-heading">
             <div>
-              <span className="eyebrow">
-                {profileCount ? "BASED ON YOUR PROFILE" : "A PLACE TO START"}
-              </span>
               <h2>
                 {profileCount
                   ? "Worth a closer look."
@@ -181,11 +186,20 @@ export function Dashboard() {
               ? "Ordered by matched and mismatched criteria. Review every requirement before deciding."
               : "Add a profile for personal matching. All opportunities below are illustrative samples."}
           </p>
-          <div className="cards-grid">
-            {recommendations.map((s) => (
-              <ScholarshipCard s={s} key={s.id} />
-            ))}
-          </div>
+          {recommendations.length ? (
+            <div className="cards-grid">
+              {recommendations.map((s) => (
+                <ScholarshipCard s={s} key={s.id} />
+              ))}
+            </div>
+          ) : (
+            <Empty
+              title="Your shortlist is complete."
+              description="You’ve saved every opportunity in the sample catalog. Continue preparing your applications, or revisit the ones you’ve saved."
+            >
+              <ButtonLink to="/applications">View applications</ButtonLink>
+            </Empty>
+          )}
         </div>
         <aside className="dashboard-aside">
           <section className="deadline-panel">
@@ -241,7 +255,6 @@ export function Dashboard() {
             </Link>
           </section>
           <section className="explain-panel">
-            <span className="eyebrow">CLARITY OVER GUESSWORK</span>
             <h2>A match you can understand.</h2>
             <p>
               Every recommendation comes with reasons, so you can make your own

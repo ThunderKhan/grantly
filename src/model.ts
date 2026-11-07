@@ -245,7 +245,7 @@ export function nextAction(s: Scholarship, p: Profile, t?: Tracked) {
   const mismatch = outcomes.find((x) => x.status === "possible_mismatch");
   if (mismatch) return `Review requirement: ${mismatch.label.toLowerCase()}.`;
   const unknown = outcomes.find((x) => x.status === "unknown");
-  if (unknown) return `Verify ${unknown.label.toLowerCase()}.`;
+  if (unknown) return `Verify requirement: ${unknown.label.toLowerCase()}.`;
   const missing = s.documents.find((d) => !t?.documents.includes(d));
   if (missing) return `Prepare your ${missing.toLowerCase()}.`;
   return "Review the application steps before applying through the provider.";

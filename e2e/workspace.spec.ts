@@ -238,7 +238,7 @@ test("blocked storage remains usable and announces session-only persistence", as
   ).toBeVisible();
 });
 
-for (const width of [375, 768, 1280, 1440]) {
+for (const width of [320, 375, 640, 768, 1280, 1440]) {
   test(`responsive layouts and WCAG checks at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 });
     for (const path of [
@@ -258,6 +258,38 @@ for (const width of [375, 768, 1280, 1440]) {
         ),
         `${path} overflows at ${width}`,
       ).toBe(true);
+      if (width <= 375) {
+        const smallText = await page
+          .locator("main p,main label,main small,main .text-link,nav a")
+          .evaluateAll((elements) =>
+            elements
+              .filter(
+                (e) =>
+                  e.getClientRects().length &&
+                  e.textContent?.trim() &&
+                  parseFloat(getComputedStyle(e).fontSize) < 14,
+              )
+              .map((e) => e.textContent?.trim()),
+          );
+        expect(smallText, `${path} has unreadable mobile text`).toEqual([]);
+        const smallControls = await page
+          .locator("main button")
+          .evaluateAll((elements) =>
+            elements
+              .filter(
+                (e) =>
+                  e.getClientRects().length &&
+                  (e.getBoundingClientRect().width < 44 ||
+                    e.getBoundingClientRect().height < 44),
+              )
+              .map(
+                (e) => e.getAttribute("aria-label") || e.textContent?.trim(),
+              ),
+          );
+        expect(smallControls, `${path} has undersized mobile buttons`).toEqual(
+          [],
+        );
+      }
       const result = await new AxeBuilder({ page })
         .withTags(["wcag2a", "wcag2aa", "wcag21aa"])
         .analyze();
@@ -359,4 +391,106 @@ test("mobile search, expandable filters, saving and preparation", async ({
       () => document.documentElement.scrollWidth <= innerWidth,
     ),
   ).toBe(true);
+});
+
+test("profile validation explains invalid marks and workspace reset uses specific actions", async ({
+  page,
+}) => {
+  await page.goto("/profile");
+  await page.getByRole("spinbutton").fill("101");
+  await page.getByRole("button", { name: "Save profile", exact: true }).click();
+  await expect(page.getByRole("alert")).toHaveText(
+    "Enter a percentage from 0 to 100, or leave this blank.",
+  );
+  await expect(page.getByRole("spinbutton")).toHaveAttribute(
+    "aria-invalid",
+    "true",
+  );
+  await page.getByRole("spinbutton").fill("80");
+  await page.getByRole("button", { name: "Save profile", exact: true }).click();
+  await expect(
+    page.getByText("Profile saved. Matching has been updated."),
+  ).toBeVisible();
+  await page
+    .getByRole("button", { name: "Reset entire workspace", exact: true })
+    .click();
+  await expect(
+    page.getByRole("dialog", { name: "Reset your local workspace?" }),
+  ).toBeVisible();
+  await page
+    .getByRole("button", { name: "Keep workspace", exact: true })
+    .click();
+  await expect(page.getByRole("spinbutton")).toHaveValue("80");
+});
+
+test("long names, full catalog, and dialog names remain usable on mobile", async ({
+  page,
+  context,
+}) => {
+  await page.setViewportSize({ width: 375, height: 812 });
+  await context.addInitScript(
+    ({ key }) =>
+      localStorage.setItem(
+        key,
+        JSON.stringify({
+          version: 1,
+          profile: {
+            name: "A".repeat(60),
+            level: "",
+            field: "",
+            region: "",
+            marks: "",
+            income: "",
+          },
+          tracked: Object.fromEntries(
+            [
+              "next-gen-tech",
+              "open-doors",
+              "science-forward",
+              "homegrown-talent",
+              "creative-futures",
+              "first-step",
+              "care-in-action",
+              "business-builders",
+              "western-horizons",
+              "learning-without-limits",
+              "capital-scholars",
+              "southern-innovators",
+            ].map((id) => [
+              id,
+              {
+                stage: "saved",
+                documents: [],
+                notes: "",
+                updated: "2026-11-07T12:00:00Z",
+              },
+            ]),
+          ),
+        }),
+      ),
+    { key },
+  );
+  await page.goto("/");
+  await expect(
+    page.getByRole("heading", { name: "Your shortlist is complete." }),
+  ).toBeVisible();
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= innerWidth,
+    ),
+  ).toBe(true);
+  await page.goto("/discover");
+  await page
+    .getByRole("button", {
+      name: "Remove Open Doors Education Grant",
+      exact: true,
+    })
+    .click();
+  await expect(
+    page.getByRole("dialog", { name: "Remove this opportunity?" }),
+  ).toBeVisible();
+  await expect(page.getByRole("dialog")).toContainText(
+    "This removes Open Doors Education Grant",
+  );
+  await page.keyboard.press("Escape");
 });

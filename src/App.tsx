@@ -47,9 +47,27 @@ export function App() {
               { to: "/discover", label: "Discover", Icon: Compass },
               { to: "/applications", label: "My Applications", Icon: Layers },
             ].map(({ to, label, Icon }) => (
-              <NavLink to={to} end={to === "/"} key={to}>
+              <NavLink
+                to={to}
+                end={to === "/"}
+                key={to}
+                aria-label={
+                  to === "/applications"
+                    ? `My Applications${Object.keys(state.tracked).length ? ` ${Object.keys(state.tracked).length}` : ""}`
+                    : undefined
+                }
+              >
                 <Icon size={17} />
-                <span>{label}</span>
+                {to === "/applications" ? (
+                  <>
+                    <span className="nav-label-full">{label}</span>
+                    <span className="nav-label-short" aria-hidden="true">
+                      Applications
+                    </span>
+                  </>
+                ) : (
+                  <span>{label}</span>
+                )}
                 {to === "/applications" &&
                   Object.keys(state.tracked).length > 0 && (
                     <span className="nav-count">

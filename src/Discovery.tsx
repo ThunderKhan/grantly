@@ -58,7 +58,6 @@ export function Discovery() {
   return (
     <>
       <SectionTitle
-        eyebrow="FIND YOUR NEXT CHAPTER"
         title="Big ambitions. Real possibilities."
         description="Explore scholarships, understand your fit, and take your next step."
       />
@@ -66,7 +65,7 @@ export function Discovery() {
         <aside className="filter-panel">
           <div className="row">
             <h2>
-              <SlidersHorizontal size={17} /> Refine your search
+              <SlidersHorizontal size={17} /> Filters
             </h2>
             <button className="reset-text" onClick={resetFilters}>
               Reset
@@ -169,7 +168,7 @@ export function Discovery() {
             <Search size={21} />
             <input
               aria-label="Search scholarships"
-              placeholder="Search scholarships, providers, or subjects…"
+              placeholder="Search scholarships or providers…"
               value={filters.query}
               onChange={(e) => set("query", e.target.value)}
             />

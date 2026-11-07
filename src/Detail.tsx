@@ -62,7 +62,6 @@ export function Detail() {
           <section className="panel" id="documents">
             <div className="row">
               <div>
-                <span className="eyebrow">GET APPLICATION-READY</span>
                 <h2>Your document checklist</h2>
               </div>
               <span className="count-pill">
@@ -95,7 +94,6 @@ export function Detail() {
             </small>
           </section>
           <section className="panel">
-            <span className="eyebrow">ONE STEP AT A TIME</span>
             <h2>How to prepare & apply</h2>
             <ol className="steps">
               {s.steps.map((step, i) => (
@@ -140,7 +138,6 @@ export function Detail() {
         </div>
         <aside className="detail-aside">
           <section className="award-panel">
-            <span className="eyebrow">ROOM FOR YOUR AMBITION</span>
             <h2>{money(s.amount)}</h2>
             <p>{s.benefit}</p>
             <div className="award-deadline">
@@ -169,7 +166,6 @@ export function Detail() {
             <span className="next-icon">
               <Check size={17} />
             </span>
-            <span className="eyebrow">YOUR NEXT BEST STEP</span>
             <h3>{nextAction(s, state.profile, t)}</h3>
             <Link to="/profile" className="text-link">
               Review profile <ArrowUpRight size={16} />
