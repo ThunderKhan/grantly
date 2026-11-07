@@ -12,7 +12,7 @@ import { NumberTicker } from "./NumberTicker";
 import { AnimatedProgress } from "./motion";
 import { catalog } from "./catalog";
 import { useStore } from "./store";
-import { daysUntil, nextAction, relevance } from "./model";
+import { daysUntil, nextAction, relevance, compareDeadlinePriority, prioritizedTracked } from "./model";
 import { ButtonLink, Empty, ScholarshipCard } from "./components";
 export function Dashboard() {
   const { state } = useStore();
@@ -24,7 +24,8 @@ export function Dashboard() {
         state.tracked[s.id].stage !== "applied" &&
         daysUntil(s.deadline) !== undefined,
     )
-    .sort((a, b) => daysUntil(a.deadline)! - daysUntil(b.deadline)!);
+    .sort((a, b) => compareDeadlinePriority(a.deadline, b.deadline));
+  const actionOrder = prioritizedTracked(tracked, state.tracked);
   const upcoming = deadlines.filter(
     (s) => daysUntil(s.deadline)! >= 0 && daysUntil(s.deadline)! <= 30,
   );
@@ -132,7 +133,7 @@ export function Dashboard() {
                 </div>
               </Link>
             )}
-            {tracked.slice(0, profileCount < 5 ? 2 : 3).map((s) => (
+            {actionOrder.slice(0, profileCount < 5 ? 2 : 3).map((s) => (
               <Link
                 to={`/scholarships/${s.id}`}
                 key={s.id}
@@ -225,7 +226,7 @@ export function Dashboard() {
                             : d === 0
                               ? "Due today"
                               : `${d} days left`}{" "}
-                          · sample date
+                          · {s.isSample ? "sample date" : "check source"}
                         </p>
                       </div>
                     </Link>

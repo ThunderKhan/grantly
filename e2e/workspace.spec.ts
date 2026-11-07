@@ -110,7 +110,7 @@ test("complete profile → discovery → eligibility → save → documents → 
     .selectOption("decision_received");
   await expect(
     page.getByRole("heading", {
-      name: "Record your outcome in your personal notes.",
+      name: "Record your decision outcome and date.",
     }),
   ).toBeVisible();
   await page
@@ -138,7 +138,7 @@ test("search, composed filters, reset, sorting, expired and missing deadlines", 
   page,
 }) => {
   await page.goto("/discover");
-  await expect(page.locator("article")).toHaveCount(12);
+  await expect(page.locator("article")).toHaveCount(15);
   await page
     .getByRole("textbox", { name: "Search scholarships" })
     .fill("no-such-opportunity");
@@ -146,22 +146,22 @@ test("search, composed filters, reset, sorting, expired and missing deadlines", 
     page.getByRole("heading", { name: "Let’s widen the search." }),
   ).toBeVisible();
   await page.getByRole("button", { name: "Reset search & filters" }).click();
-  await expect(page.locator("article")).toHaveCount(12);
+  await expect(page.locator("article")).toHaveCount(15);
   await page
     .getByRole("combobox", { name: "Education level", exact: true })
     .selectOption("Postgraduate");
-  await expect(page.locator("article")).toHaveCount(4);
+  await expect(page.locator("article")).toHaveCount(6);
   await page
     .getByRole("combobox", { name: "Field of study", exact: true })
     .selectOption("Science");
-  await expect(page.locator("article")).toHaveCount(2);
+  await expect(page.locator("article")).toHaveCount(4);
   await page.getByRole("button", { name: "Reset", exact: true }).click();
-  await expect(page.locator("article")).toHaveCount(12);
+  await expect(page.locator("article")).toHaveCount(15);
   await page
     .getByRole("combobox", { name: "Sort by", exact: true })
     .selectOption("award");
   await expect(page.locator("article").first()).toContainText(
-    "Science Forward Fellowship",
+    "National Scholarship for Post Graduate Studies",
   );
   await page
     .getByRole("combobox", { name: "Deadline", exact: true })
@@ -357,7 +357,7 @@ test("mobile search, expandable filters, saving and preparation", async ({
   await page
     .getByRole("combobox", { name: "Education level", exact: true })
     .selectOption("Undergraduate");
-  await expect(page.locator("article")).toHaveCount(10);
+  await expect(page.locator("article")).toHaveCount(12);
   await page.getByRole("button", { name: "Hide filters", exact: true }).click();
   await page
     .getByRole("textbox", { name: "Search scholarships" })
@@ -457,6 +457,9 @@ test("long names, full catalog, and dialog names remain usable on mobile", async
               "learning-without-limits",
               "capital-scholars",
               "southern-innovators",
+              "ugc-pg-national",
+              "ishan-uday-ner",
+              "pm-yasasvi-college",
             ].map((id) => [
               id,
               {
@@ -541,7 +544,7 @@ test("untrusted strings remain text and invalid URL options recover", async ({
     page.getByRole("combobox", { name: /^Education level/ }),
   ).toHaveValue("");
   await expect(page.getByLabel("Sort by")).toHaveValue("relevance");
-  await expect(page.locator(".scholarship-card")).toHaveCount(12);
+  await expect(page.locator(".scholarship-card")).toHaveCount(15);
 });
 
 test("route navigation moves focus and failed route assets have recovery", async ({
@@ -686,7 +689,7 @@ for (const width of [375, 1280]) {
   }) => {
     await page.setViewportSize({ width, height: 900 });
     await page.goto("/discover");
-    await expect(page.locator("article")).toHaveCount(12);
+    await expect(page.locator("article")).toHaveCount(15);
     const first = page
       .locator("article")
       .filter({
@@ -773,7 +776,7 @@ test("reduced motion removes animated movement and counters update immediately",
 }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/discover");
-  await expect(page.locator("article")).toHaveCount(12);
+  await expect(page.locator("article")).toHaveCount(15);
   const running = () =>
     page.evaluate(
       () =>
@@ -814,10 +817,83 @@ test("reduced motion removes animated movement and counters update immediately",
     .fill("next gen");
   await page.getByRole("textbox", { name: "Search scholarships" }).clear();
   await page.emulateMedia({ reducedMotion: "reduce" });
-  await expect(page.locator("article")).toHaveCount(12);
+  await expect(page.locator("article")).toHaveCount(15);
   await expect.poll(running).toBe(0);
   const transforms = await page
     .locator(".motion-item")
     .evaluateAll((els) => els.map((el) => getComputedStyle(el).transform));
   expect(transforms.every((t) => t === "none")).toBe(true);
+});
+
+
+test("official scholarship handoff and no fabricated eligibility verdict", async ({ page }) => {
+  await page.goto("/discover");
+  await page.getByRole("textbox", { name: "Search scholarships" }).fill("National Scholarship for Post Graduate Studies");
+  await expect(page.locator("article")).toHaveCount(1);
+  await expect(page.locator("article")).toContainText("Officially listed scheme");
+  await page.getByRole("link", { name: "National Scholarship for Post Graduate Studies", exact: true }).click();
+  await expect(page.getByText("Additional official conditions")).toBeVisible();
+  await expect(page.getByRole("link", { name: "Read official scheme details" })).toHaveAttribute("href", "https://www.ugc.gov.in/Scholarships/stu_Scholarship6");
+  await expect(page.getByRole("link", { name: "Open official application portal" })).toHaveAttribute("href", "https://scholarships.gov.in/Students");
+  await expect(page.getByText(/cannot submit or verify your application/)).toBeVisible();
+});
+
+test("compare two scholarships and download a calendar reminder", async ({ page }) => {
+  await page.goto("/discover");
+  await page.locator(".scholarship-card").nth(0).getByRole("checkbox", { name: "Compare" }).check();
+  await page.locator(".scholarship-card").nth(1).getByRole("checkbox", { name: "Compare" }).check();
+  await page.getByRole("button", { name: "Compare selected" }).click();
+  await expect(page.getByRole("table")).toBeVisible();
+  await expect(page.getByRole("table")).toContainText("Next Gen Tech Scholarship");
+  await expect(page.getByRole("table")).toContainText("Open Doors Education Grant");
+  await page.getByRole("button", { name: "Clear selection" }).click();
+  await expect(page.getByRole("table")).toHaveCount(0);
+  await page.goto("/scholarships/next-gen-tech");
+  const download = page.waitForEvent("download");
+  await page.getByRole("button", { name: "Add deadline to calendar" }).click();
+  expect((await download).suggestedFilename()).toBe("grantly-next-gen-tech-deadline.ics");
+});
+
+test("decision outcome and date persist and do not survive reverting stage", async ({ page }) => {
+  await page.goto("/scholarships/next-gen-tech");
+  await page.getByRole("button", { name: "Start preparing" }).click();
+  const stage = page.getByRole("combobox", { name: "Application stage for Next Gen Tech Scholarship" });
+  await stage.selectOption("decision_received");
+  await page.getByRole("combobox", { name: "Decision outcome for Next Gen Tech Scholarship" }).selectOption("waitlisted");
+  await page.getByRole("textbox", { name: "Decision date for Next Gen Tech Scholarship" }).fill("2026-11-07");
+  await expect(page.getByText("Check the provider for the next waitlist update.")).toBeVisible();
+  await page.reload();
+  await expect(page.getByRole("combobox", { name: "Decision outcome for Next Gen Tech Scholarship" })).toHaveValue("waitlisted");
+  await stage.selectOption("preparing");
+  await stage.selectOption("decision_received");
+  await expect(page.getByRole("combobox", { name: "Decision outcome for Next Gen Tech Scholarship" })).toHaveValue("");
+});
+
+test("unsaved profile navigation is blocked and backup import restores local state", async ({ page }) => {
+  await page.goto("/profile");
+  await page.getByLabel("Preferred name").fill("Not saved");
+  await page.getByRole("link", { name: "Discover", exact: true }).click();
+  await expect(page.getByRole("dialog", { name: "Leave without saving profile changes?" })).toBeVisible();
+  await page.getByRole("button", { name: "Keep editing" }).click();
+  await expect(page).toHaveURL(/\/profile$/);
+  await page.getByRole("button", { name: "Save profile" }).click();
+  const dl = page.waitForEvent("download");
+  await page.getByRole("button", { name: "Export backup" }).click();
+  expect((await dl).suggestedFilename()).toMatch(/^grantly-backup-/);
+  await page.getByRole("button", { name: "Reset entire workspace" }).click();
+  await page.getByRole("button", { name: "Reset workspace" }).click();
+  await expect(page.getByLabel("Preferred name")).toHaveValue("");
+  const payload = JSON.stringify({
+    version: 1,
+    profile: { name: "Restored", level: "Undergraduate", field: "", region: "", marks: "", income: "" },
+    tracked: {},
+  });
+  await page.getByLabel("Choose a GRANTLY workspace backup").setInputFiles({
+    name: "backup.json", mimeType: "application/json", buffer: Buffer.from(payload),
+  });
+  await expect(page.getByRole("dialog", { name: "Replace this workspace with your backup?" })).toBeVisible();
+  await page.getByRole("button", { name: "Restore backup" }).click();
+  await expect(page.getByLabel("Preferred name")).toHaveValue("Restored");
+  await page.reload();
+  await expect(page.getByLabel("Preferred name")).toHaveValue("Restored");
 });

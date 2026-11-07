@@ -40,9 +40,13 @@ Run `npm run build` before browser tests. Playwright starts the production previ
 
 React 19 + TypeScript + Vite, React Router, Tailwind CSS 4, Lucide icons, self-hosted Titillium Web and Inter. The design follows `docs/design.md`; all original product contracts remain in `docs/`.
 
+## Complete frontend-only journey
+
+GRANTLY now includes source-linked government scholarship programmes alongside illustrative examples, an explicit external portal handoff, deadline-aware action ordering, optional decision outcomes and dates, 2–3 scholarship comparison, calendar event export, and locally validated JSON workspace backup/restore. Edited profile fields are protected against accidental navigation. See [Frontend completion notes](docs/FRONTEND_COMPLETION.md) for data sources, limitations and design decisions.
+
 ## Data and privacy
 
-All 12 scholarship records, providers, benefits, rules, and deadlines are **illustrative samples**, prominently labeled throughout the interface. They are not verified funding opportunities. Sample records have no invented official application links. The catalog includes expired and unspecified deadlines and non-cash benefits to exercise real edge cases.
+The original 12 records remain **illustrative samples**, visibly labeled as such. Three additional source-linked government scholarship listings carry the dates and official application entry point reviewed on 7 November 2026. They are not real-time availability or eligibility guarantees. Sample records have no invented official application links. The catalog includes expired and unspecified deadlines and non-cash benefits to exercise real edge cases.
 
 Matching is deterministic: each known answer is compared with a stated requirement, while missing answers remain unknown. There are no arbitrary percentages or official eligibility guarantees. Relevance ordering prioritizes known matches and penalizes known mismatches; the full explanation stays inspectable.
 

@@ -1,10 +1,12 @@
+import { useEffect } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { AnimatedGroup, AnimatedProgress, StageIndicator } from "./motion";
+import { DecisionFields } from "./DecisionFields";
 import { FileText } from "lucide-react";
 import { catalog } from "./catalog";
 import { useStore } from "./store";
 import { StageSelect } from "./StageSelect";
-import { dateLabel, daysUntil, nextAction, stages } from "./model";
+import { dateLabel, compareDeadlinePriority, nextAction, stages } from "./model";
 import {
   ButtonLink,
   Deadline,
@@ -15,15 +17,16 @@ import {
 export function Applications() {
   const { state } = useStore();
   const [params, setParams] = useSearchParams();
-  const stage = params.get("stage") ?? "";
+  const requestedStage = params.get("stage") ?? "";
+  const stage = requestedStage && Object.hasOwn(stages, requestedStage) ? requestedStage : "";
+  useEffect(() => {
+    if (requestedStage && !Object.hasOwn(stages, requestedStage))
+      setParams({}, { replace: true });
+  }, [requestedStage, setParams]);
   const tracked = catalog.filter((s) => state.tracked[s.id]);
   const results = tracked
     .filter((s) => !stage || state.tracked[s.id].stage === stage)
-    .sort(
-      (a, b) =>
-        (daysUntil(a.deadline) ?? Infinity) -
-        (daysUntil(b.deadline) ?? Infinity),
-    );
+    .sort((a, b) => compareDeadlinePriority(a.deadline, b.deadline));
   return (
     <>
       <SectionTitle
@@ -69,7 +72,7 @@ export function Applications() {
                 <div className="tracker-title">
                   <span className="provider-mark">{s.mark}</span>
                   <div>
-                    <span className="context-label">Illustrative sample</span>
+                    <span className="context-label">{s.isSample ? "Illustrative sample" : "Officially listed scheme"}</span>
                     <h2>
                       <Link to={`/scholarships/${s.id}`}>{s.title}</Link>
                     </h2>
@@ -82,7 +85,7 @@ export function Applications() {
                     <Deadline s={s} />
                     <p className="muted">{dateLabel(s.deadline)}</p>
                   </div>
-                  <div className="document-mini">
+                  {s.documents.length > 0 && <div className="document-mini">
                     <span>
                       <FileText size={16} /> {done} / {s.documents.length}{" "}
                       documents ready
@@ -92,9 +95,10 @@ export function Applications() {
                       max={s.documents.length}
                       label={`Documents ready for ${s.title}`}
                     />
-                  </div>
+                  </div>}
                   <StageSelect s={s} />
                 </div>
+                <DecisionFields s={s} />
                 <div className="tracker-next">
                   <div>
                     <span className="context-label">Next action</span>

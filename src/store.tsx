@@ -9,9 +9,11 @@ import { catalog } from "./catalog";
 import {
   decode,
   initialState,
+  validDateString,
   type AppState,
   type Profile,
   type Stage,
+  type DecisionOutcome,
 } from "./model";
 export const STORAGE_KEY = "grantly:demo:v1";
 function load() {
@@ -76,6 +78,11 @@ function useWorkspace() {
             documents: s.tracked[id]?.documents ?? [],
             notes: s.tracked[id]?.notes ?? "",
             updated: new Date().toISOString(),
+            // Reopening an application must not display a stale decision.
+            outcome: (stage ?? s.tracked[id]?.stage) === "decision_received"
+              ? s.tracked[id]?.outcome : undefined,
+            decisionDate: (stage ?? s.tracked[id]?.stage) === "decision_received"
+              ? s.tracked[id]?.decisionDate : undefined,
           },
         },
       }),
@@ -83,6 +90,36 @@ function useWorkspace() {
         ? `Stage updated to ${stage.replace("_", " ")}. This is your personal record.`
         : "Scholarship saved to My Applications.",
     );
+  }
+  function setDecision(id: string, outcome: DecisionOutcome | "", date: string) {
+    if (date && !validDateString(date)) return;
+    change(
+      (s) => {
+        const existing = s.tracked[id];
+        if (!existing || existing.stage !== "decision_received") return s;
+        return {
+          ...s,
+          tracked: {
+            ...s.tracked,
+            [id]: {
+              ...existing,
+              outcome: outcome || undefined,
+              decisionDate: date || undefined,
+              updated: new Date().toISOString(),
+            },
+          },
+        };
+      },
+      "Decision details saved in this browser.",
+    );
+  }
+  function restore(workspace: AppState) {
+    // Decode again at the store boundary, rather than trusting UI inputs.
+    const checked = decode(
+      JSON.stringify(workspace),
+      catalog.map((s) => s.id),
+    );
+    change(() => checked, "Workspace restored from your local backup.");
   }
   function remove(id: string) {
     change(
@@ -144,6 +181,8 @@ function useWorkspace() {
     notice,
     saveProfile,
     track,
+    setDecision,
+    restore,
     remove,
     document,
     notes,

@@ -30,6 +30,12 @@ export const stages = {
   decision_received: "Decision received",
 } as const;
 export type Stage = keyof typeof stages;
+export const decisionOutcomes = {
+  awarded: "Awarded",
+  waitlisted: "Waitlisted",
+  declined: "Not selected",
+} as const;
+export type DecisionOutcome = keyof typeof decisionOutcomes;
 export type Profile = {
   name: string;
   level: string;
@@ -57,13 +63,19 @@ export type Scholarship = {
   rules: Rule[];
   documents: string[];
   steps: string[];
-  isSample: true;
+  isSample: boolean;
+  sourceUrl?: string;
+  applicationUrl?: string;
+  checkedOn?: string;
+  verificationNote?: string;
 };
 export type Tracked = {
   stage: Stage;
   documents: string[];
   notes: string;
   updated: string;
+  outcome?: DecisionOutcome;
+  decisionDate?: string;
 };
 export type AppState = {
   version: 1;
@@ -89,7 +101,7 @@ export type Outcome = {
   reason: string;
 };
 export function assess(s: Scholarship, p: Profile): Outcome[] {
-  return s.rules.map((r) => {
+  const outcomes: Outcome[] = s.rules.map((r) => {
     const value = p[r.field];
     if (value === "")
       return {
@@ -109,6 +121,15 @@ export function assess(s: Scholarship, p: Profile): Outcome[] {
         : `Your answer (${value}${r.field === "marks" ? "%" : ""}) differs from this sample requirement. Check the provider’s rules before applying.`,
     };
   });
+  // A verified listing may have criteria outside this simple local profile.
+  // Never turn a few known matches into a claim of full eligibility.
+  if (s.verificationNote)
+    outcomes.push({
+      label: "Additional official conditions",
+      status: "unknown",
+      reason: s.verificationNote,
+    });
+  return outcomes;
 }
 export const fieldLabels = {
   level: "Education level",
@@ -119,6 +140,7 @@ export const fieldLabels = {
 };
 export function fit(s: Scholarship, p: Profile) {
   const a = assess(s, p);
+  if (!a.length) return "Needs verification";
   return a.some((x) => x.status === "possible_mismatch")
     ? "Review fit"
     : a.some((x) => x.status === "unknown")
@@ -143,6 +165,37 @@ export function daysUntil(date?: string, now = new Date()): number | undefined {
   const today = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
   return Math.round((end - today) / 86400000);
 }
+// Upcoming deadlines first, then overdue, then unspecified. Avoid burying
+// the next real action behind long-expired examples.
+export function compareDeadlinePriority(
+  a?: string,
+  b?: string,
+  now = new Date(),
+) {
+  const rank = (date?: string) => {
+    const d = daysUntil(date, now);
+    return d === undefined ? Infinity : d < 0 ? 100000 + Math.abs(d) : d;
+  };
+  return rank(a) - rank(b);
+}
+export function prioritizedTracked(
+  items: Scholarship[],
+  tracked: Record<string, Tracked>,
+  now = new Date(),
+) {
+  const stageRank = (stage: Stage) =>
+    stage === "preparing" ? 0 : stage === "saved" ? 1 : stage === "applied" ? 2 : 3;
+  const pending = (stage: Stage) =>
+    stage === "preparing" || stage === "saved" ? 0 : 1;
+  return [...items].sort((a, b) => {
+    const active = pending(tracked[a.id].stage) - pending(tracked[b.id].stage);
+    // Within actionable items, an approaching deadline beats an expired
+    // item regardless of which preparation stage it happens to be in.
+    return active ||
+      compareDeadlinePriority(a.deadline, b.deadline, now) ||
+      stageRank(tracked[a.id].stage) - stageRank(tracked[b.id].stage);
+  });
+}
 export function deadlineLabel(date?: string, now = new Date()) {
   const days = daysUntil(date, now);
   return days === undefined
@@ -161,6 +214,11 @@ export function dateLabel(date?: string) {
         year: "numeric",
       })
     : "Not specified";
+}
+export function awardLabel(s: Scholarship) {
+  return s.amount === undefined && !s.isSample
+    ? "See official scheme"
+    : money(s.amount);
 }
 export function money(amount?: number) {
   return amount === undefined
@@ -224,19 +282,21 @@ export function discover(
     })
     .sort((a, b) => {
       if (filters.sort === "award") return (b.amount ?? -1) - (a.amount ?? -1);
-      if (filters.sort === "deadline") {
-        const av = daysUntil(a.deadline, now),
-          bv = daysUntil(b.deadline, now);
-        const rank = (v: number | undefined) =>
-          v === undefined ? Infinity : v < 0 ? 100000 + Math.abs(v) : v;
-        return rank(av) - rank(bv);
-      }
+      if (filters.sort === "deadline")
+        return compareDeadlinePriority(a.deadline, b.deadline, now);
       return relevance(b, p) - relevance(a, p);
     });
 }
 export function nextAction(s: Scholarship, p: Profile, t?: Tracked) {
-  if (t?.stage === "decision_received")
-    return "Record your outcome in your personal notes.";
+  if (t?.stage === "decision_received") {
+    if (t.outcome === "awarded")
+      return "Check the award instructions and record your next step.";
+    if (t.outcome === "waitlisted")
+      return "Check the provider for the next waitlist update.";
+    if (t.outcome === "declined")
+      return "Record your decision and explore other opportunities.";
+    return "Record your decision outcome and date.";
+  }
   if (t?.stage === "applied")
     return "Check the provider for a decision and update your stage.";
   if ((daysUntil(s.deadline) ?? 0) < 0)
@@ -290,7 +350,14 @@ export function decode(raw: string | null, ids: readonly string[]): AppState {
       typeof t.notes !== "string" ||
       t.notes.length > 2000 ||
       typeof t.updated !== "string" ||
-      t.updated.length > 40
+      t.updated.length > 40 ||
+      (t.outcome !== undefined &&
+        (!Object.hasOwn(decisionOutcomes, String(t.outcome)) ||
+          t.stage !== "decision_received")) ||
+      (t.decisionDate !== undefined &&
+        (typeof t.decisionDate !== "string" ||
+          !validDateString(t.decisionDate) ||
+          t.stage !== "decision_received"))
     )
       throw new Error("Invalid tracking data");
     tracked[id] = {
@@ -298,6 +365,8 @@ export function decode(raw: string | null, ids: readonly string[]): AppState {
       documents: [...new Set(t.documents as string[])],
       notes: t.notes,
       updated: t.updated,
+      outcome: t.outcome as DecisionOutcome | undefined,
+      decisionDate: t.decisionDate as string | undefined,
     };
   }
   return {
@@ -312,6 +381,12 @@ export function decode(raw: string | null, ids: readonly string[]): AppState {
     } as Profile,
     tracked,
   };
+}
+
+export function validDateString(date: string) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return false;
+  const parsed = new Date(`${date}T00:00:00Z`);
+  return Number.isFinite(parsed.valueOf()) && parsed.toISOString().slice(0, 10) === date;
 }
 
 // Use the same boundary for form input and persisted data. Unknown stays blank;

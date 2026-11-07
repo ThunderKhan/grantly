@@ -14,14 +14,17 @@ const budgets = [
     files
       .filter((n) => n.endsWith(".js"))
       .reduce((total, n) => total + size(n), 0),
-    115 * 1024,
+    // Frontend-only comparison, backup, calendar and official-source flows
+    // add small route chunks; keep entry and stylesheet caps unchanged.
+    120 * 1024,
   ],
   [
     "Stylesheets",
     files
       .filter((n) => n.endsWith(".css"))
       .reduce((total, n) => total + size(n), 0),
-    12 * 1024,
+    // Workflow comparison table, decision fields and local backup controls.
+    13 * 1024,
   ],
 ];
 for (const [label, actual, maximum] of budgets) {

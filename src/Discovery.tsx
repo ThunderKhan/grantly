@@ -11,6 +11,7 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { AnimatedGroup } from "./motion";
+import { awardLabel, dateLabel, fit } from "./model";
 import { catalog } from "./catalog";
 import {
   defaultFilters,
@@ -27,6 +28,8 @@ import { Link } from "react-router-dom";
 export function Discovery() {
   const { state } = useStore();
   const [filtersOpen, setFiltersOpen] = useState(false);
+  const [compareIds, setCompareIds] = useState<string[]>([]);
+  const [compareOpen, setCompareOpen] = useState(false);
   const [params, setParams] = useSearchParams();
   const navigationType = useNavigationType();
   const location = useLocation();
@@ -38,6 +41,15 @@ export function Discovery() {
       setFilters(readFilters(new URLSearchParams(location.search)));
   }, [location.key, location.search, navigationType]);
   const results = discover(catalog, filters, state.profile);
+  const comparison = catalog.filter((s) => compareIds.includes(s.id));
+  function toggleCompare(id: string) {
+    setCompareOpen(false);
+    setCompareIds((current) =>
+      current.includes(id)
+        ? current.filter((item) => item !== id)
+        : current.length < 3 ? [...current, id] : current,
+    );
+  }
   const active = Object.entries(filters).filter(
     ([k, v]) => k !== "sort" && v,
   ).length;
@@ -199,10 +211,46 @@ export function Discovery() {
               </select>
             </label>
           </div>
+          {compareIds.length > 0 && (
+            <section className="comparison-controls" aria-label="Scholarship comparison selection">
+              <p><strong>{compareIds.length} of 3</strong> selected for comparison. {compareIds.length < 2 ? "Choose at least one more opportunity." : "Compare the current requirements, awards and deadlines."}</p>
+              <div className="comparison-actions">
+                {compareIds.length >= 2 && (
+                  <button type="button" className="button secondary" aria-expanded={compareOpen} aria-controls="comparison-results" onClick={() => setCompareOpen((v) => !v)}>
+                    {compareOpen ? "Hide comparison" : "Compare selected"}
+                  </button>
+                )}
+                <button type="button" className="reset-text" onClick={() => { setCompareIds([]); setCompareOpen(false); }}>Clear selection</button>
+              </div>
+            </section>
+          )}
+          {compareOpen && comparison.length >= 2 && (
+            <section className="comparison-section" id="comparison-results" aria-label="Scholarship comparison">
+              <h2>Side-by-side comparison</h2>
+              <p>These are planning summaries. Always confirm requirements and the application window with the provider.</p>
+              <div className="comparison-scroll" role="region" aria-label="Scrollable scholarship comparison table" tabIndex={0}>
+                <table className="comparison-table">
+                  <thead>
+                    <tr>
+                      <th scope="col">Compare</th>
+                      {comparison.map((s) => <th scope="col" key={s.id}><Link to={`/scholarships/${s.id}`}>{s.title}</Link></th>)}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr><th scope="row">Award</th>{comparison.map((s) => <td key={s.id}>{awardLabel(s)}{s.amount && !s.isSample ? " per year" : ""}</td>)}</tr>
+                    <tr><th scope="row">Deadline</th>{comparison.map((s) => <td key={s.id}>{dateLabel(s.deadline)}{!s.isSample ? " · verify" : " · sample"}</td>)}</tr>
+                    <tr><th scope="row">Profile fit</th>{comparison.map((s) => <td key={s.id}>{fit(s, state.profile)}</td>)}</tr>
+                    <tr><th scope="row">Requirements</th>{comparison.map((s) => <td key={s.id}>{s.rules.length} listed{!s.isSample ? "; more conditions require official verification" : ""}</td>)}</tr>
+                    <tr><th scope="row">Source</th>{comparison.map((s) => <td key={s.id}>{s.isSample ? "Illustrative sample" : <a className="text-link" href={s.sourceUrl} target="_blank" rel="noopener noreferrer">Official listing</a>}</td>)}</tr>
+                  </tbody>
+                </table>
+              </div>
+            </section>
+          )}
           {results.length ? (
             <AnimatedGroup className="cards-grid">
               {results.map((s) => (
-                <ScholarshipCard key={s.id} s={s} />
+                <ScholarshipCard key={s.id} s={s} compared={compareIds.includes(s.id)} onCompare={toggleCompare} compareDisabled={compareIds.length >= 3 && !compareIds.includes(s.id)} />
               ))}
             </AnimatedGroup>
           ) : (

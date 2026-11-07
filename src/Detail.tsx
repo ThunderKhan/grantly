@@ -9,9 +9,11 @@ import {
   CalendarDays,
 } from "lucide-react";
 import { CircularProgress } from "./motion";
+import { DecisionFields } from "./DecisionFields";
+import { CalendarDownload } from "./CalendarDownload";
 import { catalog } from "./catalog";
 import { useStore } from "./store";
-import { dateLabel, deadlineLabel, nextAction, money } from "./model";
+import { dateLabel, deadlineLabel, nextAction, awardLabel } from "./model";
 import { ButtonLink, Empty, FitBreakdown, SaveButton } from "./components";
 import { StageSelect } from "./StageSelect";
 export function Detail() {
@@ -40,7 +42,7 @@ export function Detail() {
             <div className="row">
               <span className="provider-mark large">{s.mark}</span>
               <span className="sample-chip">
-                Illustrative sample opportunity
+                {s.isSample ? "Illustrative sample opportunity" : "Officially listed scheme · verify current cycle"}
               </span>
             </div>
             <p className="provider">{s.provider}</p>
@@ -59,15 +61,22 @@ export function Detail() {
               </span>
             </div>
           </header>
+          {!s.isSample && (
+            <section className="panel source-panel">
+              <h2>Official source</h2>
+              <p>Listed by the provider. Reviewed {dateLabel(s.checkedOn)}; availability, dates and eligibility can change. Open the current scheme before making any decision.</p>
+              <a href={s.sourceUrl} target="_blank" rel="noopener noreferrer" className="text-link">Read official scheme details</a>
+            </section>
+          )}
           <FitBreakdown s={s} />
           <section className="panel" id="documents">
             <div className="row">
               <div>
                 <h2>Your document checklist</h2>
               </div>
-              <CircularProgress value={ready} max={s.documents.length} />
+              {s.documents.length > 0 && <CircularProgress value={ready} max={s.documents.length} />}
             </div>
-            <p className="muted">Check off each document as you prepare it.</p>
+            <p className="muted">{s.documents.length ? "Check off each document as you prepare it." : "The official portal specifies the current document requirements. Review them there before applying."}</p>
             <div className="checklist">
               {s.documents.map((d) => (
                 <label
@@ -84,10 +93,7 @@ export function Detail() {
                 </label>
               ))}
             </div>
-            <small>
-              Checking your first document also saves this opportunity to your
-              applications.
-            </small>
+            {s.documents.length > 0 && <small>Checking your first document also saves this opportunity to your applications.</small>}
           </section>
           <section className="panel">
             <h2>How to prepare & apply</h2>
@@ -101,11 +107,15 @@ export function Detail() {
             </ol>
             <div className="inline-info">
               <Info size={18} />
-              <p>
-                Sample opportunity: a provider application link is not
-                available.
-              </p>
+              <p>{s.isSample
+                ? "Sample opportunity: a provider application link is not available."
+                : "Apply only through the provider’s official portal. GRANTLY cannot submit or verify your application."}</p>
             </div>
+            {!s.isSample && s.applicationUrl && (
+              <a className="button secondary" href={s.applicationUrl} target="_blank" rel="noopener noreferrer">
+                Open official application portal
+              </a>
+            )}
           </section>
           {t && (
             <section className="panel">
@@ -131,13 +141,13 @@ export function Detail() {
         </div>
         <aside className="detail-aside">
           <section className="award-panel">
-            <h2>{money(s.amount)}</h2>
+            <h2>{awardLabel(s)}</h2>
             <p>{s.benefit}</p>
             <div className="award-deadline">
               <CalendarDays size={19} />
               <div>
                 <strong>{deadlineLabel(s.deadline)}</strong>
-                <span>{dateLabel(s.deadline)} · sample date</span>
+                <span>{dateLabel(s.deadline)}{s.isSample ? " · sample date" : " · verify official date"}</span>
               </div>
             </div>
             <SaveButton s={s} />
@@ -151,6 +161,8 @@ export function Detail() {
             ) : (
               <StageSelect s={s} />
             )}
+            <DecisionFields s={s} />
+            <CalendarDownload s={s} />
             <p className="fine-print">
               Update this stage after you complete each step with the provider.
             </p>
