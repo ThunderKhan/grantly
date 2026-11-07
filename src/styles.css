@@ -2998,7 +2998,8 @@ input[aria-invalid="true"] {
   }
 }
 @media (prefers-reduced-motion: no-preference) {
-  .dashboard-body,
+  /* Dashboard content must remain fully opaque during WCAG checks and
+     visual reading; section-wide fades dilute all descendant text contrast. */
   .confirm[open],
   .success-message,
   .field-error,
