@@ -14,7 +14,9 @@ const budgets = [
     files
       .filter((n) => n.endsWith(".js"))
       .reduce((total, n) => total + size(n), 0),
-    115 * 1024,
+    // Frontend-only comparison, backup, calendar and official-source flows
+    // add small route chunks; keep entry and stylesheet caps unchanged.
+    120 * 1024,
   ],
   [
     "Stylesheets",
