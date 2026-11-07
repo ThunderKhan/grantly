@@ -783,7 +783,7 @@ test("reduced motion removes animated movement and counters update immediately",
   expect(await running()).toBe(0);
   await page
     .getByRole("textbox", { name: "Search scholarships" })
-    .fill("next gen");
+    .fill("Next Gen Tech Scholarship");
   await expect(page.locator("article")).toHaveCount(1);
   await page
     .getByRole("button", {

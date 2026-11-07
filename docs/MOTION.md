@@ -6,7 +6,7 @@ The existing mint/black design, navigation, routes, data model, persistence and 
 
 | Reference | Applied or intentionally skipped |
 | --- | --- |
-| [Motion Primitives AnimatedGroup](https://motion-primitives.com/docs/animated-group) | Adapted into `AnimatedGroup` with stable scholarship keys, short slide/fade entrances, bounded staggering and FLIP transforms when retained results move. Offscreen cards are not animated; removed results leave immediately so obsolete actions cannot remain focusable. |
+| [Motion Primitives AnimatedGroup](https://motion-primitives.com/docs/animated-group) | Adapted into `AnimatedGroup` with stable scholarship keys, short slide entrances, bounded staggering and FLIP transforms when retained results move. Offscreen cards are not animated; removed results leave immediately so obsolete actions cannot remain focusable. |
 | [Motion Primitives Morphing Dialog](https://motion-primitives.com/docs/morphing-dialog) | Source reviewed. Not introduced: eligibility is already available inline, and moving it into an overlay would change the workflow. Native confirmation dialogs retain browser focus trapping, Escape handling and focus restoration, with only a short opening fade/translation. Closing remains immediate. |
 | [Animate UI Base UI Tabs](https://animate-ui.com/docs/primitives/base-ui/tabs), [UI Layouts Tabs](https://www.ui-layouts.com/components/tabs) | Reviewed both. Adapted UI Layouts' moving active indicator pattern to the existing native stage filter buttons; a short underline transition handles wrapped mobile rows. Stage content uses the same keyed result transition. Did not add Base UI, shadcn, hover activation or spring distortion. Native filter button semantics and pressed state remain. |
 | [Magic UI Number Ticker](https://magicui.design/docs/components/number-ticker) | Adapted the motion-value/spring implementation for real dashboard counts. Initial render uses the true count; only subsequent state changes interpolate, with no scroll replay or made-up starting metrics. Assistive technology receives the final integer immediately. |
@@ -23,9 +23,13 @@ One declared animation dependency, `motion`, is used. Scoped list/indicator anim
 
 `prefers-reduced-motion` is read synchronously and subscribed to through `useSyncExternalStore`. Reduced motion disables CSS movement and group/indicator animations, settles counters immediately, and cancels active motion if the preference changes while a transition is running. Controls stay operable throughout animations. Counts and progress values stay semantically current throughout interpolation. Animation controls and ResizeObservers are cleaned up on updates/unmount.
 
-Lists animate opacity/transforms, the active indicator uses transforms, and linear fills use scaleX. The tiny fixed SVG ring animates its stroke only; it does not resize layout. Geometry is read before animation writes. No view-transition snapshots, global smooth scrolling, or whole-page blur is introduced.
+Lists animate transforms, the active indicator uses transforms, and linear fills use scaleX. The tiny fixed SVG ring animates its stroke only; it does not resize layout. Geometry is read before animation writes. No view-transition snapshots, global smooth scrolling, or whole-page blur is introduced.
 
 The existing bundle budgets are unchanged. Run `npm run build && npm run check:bundle` to verify entry JS, total JS and CSS caps. Browser coverage includes the persisted core journey, responsive/axe checks, progress and stage transitions at 375/1280px, and reduced-motion behavior including an interrupted transition. Production lab paint/layout measurements continue to run on home and discovery; these are not field Core Web Vitals or a real-device frame-rate certification.
+
+## Accessibility note
+
+Scholarship cards translate a few pixels on entrance, but do **not** fade the entire card: lowering container opacity also reduces text contrast during the animation and can fail WCAG contrast checks. Form labels and card text remain fully opaque. The reduced-motion browser test searches by the full opportunity title to avoid accidentally matching unrelated scholarship descriptions.
 
 ## Local verification
 
