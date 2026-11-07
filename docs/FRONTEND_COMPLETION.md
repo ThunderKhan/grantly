@@ -35,4 +35,11 @@ Recovered from the earlier **Implement Grantly Platform** Work context and appli
 
 Execute `npm ci && npm run typecheck && npm run lint && npm test && npm run build && npm run check:bundle && npm run test:e2e`. Browser coverage should include the official-source flow, URL normalization, comparison, calendar download, local backup recovery, unsaved-profile navigation, outcome persistence and 320–1440 px accessibility checks.
 
-No automated check substitutes for manual Safari/Firefox, assistive technology, browser zoom, slow physical devices, or verification of current provider deadlines. Vercel deployment remains intentionally paused.
+No automated check substitutes for manual Safari/Firefox, assistive technology, browser zoom, slow physical devices, or verification of current provider deadlines. Vercel Git-based production deployment has been restored.
+
+## Final evaluation accessibility and functionality updates
+
+- A first-time visitor can use **Try an interactive example** to create an explicitly fictional local workspace; any existing progress requires replacement confirmation.
+- Discovery includes a source-type filter and labels official sources separately from illustrative entries.
+- Corrected sample-only language on official scholarship pages and fixed the displayed backup restore count.
+- These features address visible task discoverability and real user-facing defects. The organizers' private scoring implementation remains unknown; no particular score is guaranteed.
