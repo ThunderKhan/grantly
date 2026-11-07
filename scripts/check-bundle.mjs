@@ -23,7 +23,8 @@ const budgets = [
     files
       .filter((n) => n.endsWith(".css"))
       .reduce((total, n) => total + size(n), 0),
-    12 * 1024,
+    // Workflow comparison table, decision fields and local backup controls.
+    13 * 1024,
   ],
 ];
 for (const [label, actual, maximum] of budgets) {
