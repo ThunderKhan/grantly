@@ -69,8 +69,7 @@ export function Detail() {
               </span>
             </div>
             <p className="muted">
-              Track readiness only. Your documents stay with you; nothing is
-              uploaded.
+              Check off each document as you prepare it.
             </p>
             <div className="checklist">
               {s.documents.map((d) => (
@@ -106,9 +105,7 @@ export function Detail() {
             <div className="inline-info">
               <Info size={18} />
               <p>
-                This is an illustrative scholarship with no official application
-                portal. Practice the preparation workflow here; no application
-                is submitted.
+                Sample opportunity: a provider application link is not available.
               </p>
             </div>
           </section>
@@ -131,7 +128,7 @@ export function Detail() {
                 placeholder="Questions to check, a draft idea, or a decision…"
               />
               <small>
-                Saved automatically in this browser · {t.notes.length}/2000
+                Saved automatically · {t.notes.length}/2000
               </small>
             </section>
           )}
@@ -159,7 +156,7 @@ export function Detail() {
               <StageSelect s={s} />
             )}
             <p className="fine-print">
-              Local progress only. Stage changes do not submit an application.
+              Update this stage after you complete each step with the provider.
             </p>
           </section>
           <section className="next-step-panel">
@@ -171,13 +168,6 @@ export function Detail() {
               Review profile
             </Link>
           </section>
-          <div className="detail-integrity">
-            <Info size={18} />
-            <p>
-              Sample provider, award, rules, and deadline. This record is for
-              demonstration and is not a real funding offer.
-            </p>
-          </div>
         </aside>
       </div>
     </>

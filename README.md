@@ -7,13 +7,13 @@ A student-first scholarship workspace for Frontend Arena’s THE OUTPOST 2026. F
 Node.js 24 recommended (22.12+ supported).
 
 ```sh
-git clone --branch feat/grantly-scholarship-workspace https://github.com/ThunderKhan/grantly.git
+git clone https://github.com/ThunderKhan/grantly.git
 cd grantly
 npm ci
 npm run dev
 ```
 
-The implementation is on `feat/grantly-scholarship-workspace` (PR #1); the default branch has not been merged. Open the localhost URL printed by Vite.
+The implementation is on `main`. Open the localhost URL printed by Vite.
 
 ## Check the implementation
 

@@ -128,8 +128,7 @@ export function App() {
             grantly<span className="logo-dot">.</span>{" "}
             <span className="footer-tagline">Opportunity, organized.</span>
           </span>
-          <p>Illustrative sample data · Stored in this browser only</p>
-          <Link to="/profile">Manage local data</Link>
+          <Link to="/profile">Profile & preferences</Link>
         </div>
       </footer>
       <div

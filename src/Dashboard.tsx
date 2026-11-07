@@ -159,7 +159,7 @@ export function Dashboard() {
                 <div>
                   <h3>Build your scholarship shortlist</h3>
                   <p>
-                    Explore {catalog.length} illustrative scholarships and save
+                    Explore {catalog.length} scholarships and save
                     your shortlist
                   </p>
                 </div>
@@ -181,7 +181,7 @@ export function Dashboard() {
           <p className="recommendation-note">
             {profileCount
               ? "Ordered by matched and mismatched criteria. Review every requirement before deciding."
-              : "Add a profile for personal matching. All opportunities below are illustrative samples."}
+              : "Add your academic details to find opportunities relevant to you."}
           </p>
           {recommendations.length ? (
             <div className="cards-grid">
@@ -192,7 +192,7 @@ export function Dashboard() {
           ) : (
             <Empty
               title="Your shortlist is complete."
-              description="You’ve saved every opportunity in the sample catalog. Continue preparing your applications, or revisit the ones you’ve saved."
+              description="You’ve saved every opportunity in the catalog. Continue preparing your applications, or revisit the ones you’ve saved."
             >
               <ButtonLink to="/applications">View applications</ButtonLink>
             </Empty>
@@ -250,10 +250,6 @@ export function Dashboard() {
               View applications
             </Link>
           </section>
-          <p className="dashboard-disclosure">
-            A frontend demonstration with illustrative opportunities. No real
-            applications or eligibility decisions.
-          </p>
         </aside>
       </div>
     </>

@@ -1,6 +1,5 @@
 import { Link, useSearchParams } from "react-router-dom";
-// avoid-ai-design-ignore: I3 -- Check confirms local persistence below the tracker; no decorative feature icons.
-import { ListChecks, Check, FileText } from "lucide-react";
+import { FileText } from "lucide-react";
 import { catalog } from "./catalog";
 import { useStore } from "./store";
 import {
@@ -57,13 +56,6 @@ export function Applications() {
       >
         <ButtonLink to="/discover">Find scholarships</ButtonLink>
       </SectionTitle>
-      <div className="tracking-summary">
-        <ListChecks size={20} />
-        <p>
-          Stages are your personal records. “Applied” means you submitted
-          outside GRANTLY. No applications are sent from here.
-        </p>
-      </div>
       <div className="stage-tabs" aria-label="Filter application stage">
         {[["", "All applications"], ...Object.entries(stages)].map(
           ([key, label]) => (
@@ -159,9 +151,6 @@ export function Applications() {
           )}
         </Empty>
       )}
-      <div className="small-footnote">
-        <Check size={15} /> Your updates are saved in this browser only.
-      </div>
     </>
   );
 }

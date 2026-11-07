@@ -196,10 +196,6 @@ export function Discovery() {
               </select>
             </label>
           </div>
-          <div className="sample-note">
-            <span className="tiny-dot" /> Demo catalog. All providers, awards,
-            and deadlines below are illustrative.
-          </div>
           {results.length ? (
             <div className="cards-grid">
               {results.map((s) => (
