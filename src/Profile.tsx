@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
-import { useBlocker } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 // avoid-ai-design-ignore: I3 -- Check identifies save confirmation and concrete matching/privacy facts.
 import { Check, ShieldCheck, UserRound, Trash2 } from "lucide-react";
 import { useStore } from "./store";
@@ -26,7 +26,27 @@ export function Profile() {
     (k) => form[k as keyof ProfileType],
   ).length;
   const dirty = JSON.stringify(form) !== JSON.stringify(state.profile);
-  const blocker = useBlocker(dirty);
+  const navigate = useNavigate();
+  const [pendingRoute, setPendingRoute] = useState<string | null>(null);
+  // Capture in-app link navigation while editing; avoid loading the heavier
+  // data-router package solely for this one form guard.
+  useEffect(() => {
+    if (!dirty) return;
+    const guardLink = (event: MouseEvent) => {
+      if (event.defaultPrevented || event.button !== 0 || event.ctrlKey || event.metaKey || event.altKey || event.shiftKey) return;
+      const target = event.target;
+      if (!(target instanceof Element)) return;
+      const anchor = target.closest("a[href]");
+      if (!anchor || anchor.hasAttribute("download") || anchor.target === "_blank") return;
+      const url = new URL(anchor.href);
+      if (url.origin !== window.location.origin || (url.pathname === window.location.pathname && url.search === window.location.search)) return;
+      event.preventDefault();
+      event.stopPropagation();
+      setPendingRoute(url.pathname + url.search + url.hash);
+    };
+    document.addEventListener("click", guardLink, true);
+    return () => document.removeEventListener("click", guardLink, true);
+  }, [dirty]);
   useEffect(() => {
     if (!dirty) return;
     const preventClose = (event: BeforeUnloadEvent) => {
@@ -216,9 +236,12 @@ export function Profile() {
         </aside>
       </div>
       <Confirm
-        open={blocker.state === "blocked"}
-        onClose={() => blocker.reset?.()}
-        onConfirm={() => blocker.proceed?.()}
+        open={pendingRoute !== null}
+        onClose={() => setPendingRoute(null)}
+        onConfirm={() => {
+          if (pendingRoute) navigate(pendingRoute);
+          setPendingRoute(null);
+        }}
         title="Leave without saving profile changes?"
         confirmLabel="Discard changes and leave"
         cancelLabel="Keep editing"
