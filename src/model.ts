@@ -101,7 +101,7 @@ export type Outcome = {
   reason: string;
 };
 export function assess(s: Scholarship, p: Profile): Outcome[] {
-  const outcomes = s.rules.map((r) => {
+  const outcomes: Outcome[] = s.rules.map((r) => {
     const value = p[r.field];
     if (value === "")
       return {
