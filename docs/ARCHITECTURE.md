@@ -75,7 +75,8 @@ Never store passwords, access tokens, raw financial identifiers, identity docume
 
 Expected routes (adapt if necessary):
 
-- `/` — dashboard or introductory route
+- `/` — landing page, reached through the logo; no Home item in the navigation
+- `/dashboard` — student workspace, summaries and next actions
 - `/discover` — scholarship discovery
 - `/scholarships/:id` — scholarship details
 - `/applications` — tracker

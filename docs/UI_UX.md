@@ -11,6 +11,8 @@ GRANTLY should feel **clear, friendly, trustworthy and useful**, especially for 
 
 ## Navigation / information architecture
 
+The public introduction lives at `/`, with the student workspace at `/dashboard`. The logo returns to the introduction; do not add Home to the main navigation. The introduction uses the same scholarship data, fit assessment and save state as the workspace, with direct discovery and subject-filter entry points.
+
 Core destinations:
 
 1. **Dashboard:** Summary of deadlines, saved items and next actions.

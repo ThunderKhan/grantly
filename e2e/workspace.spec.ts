@@ -7,7 +7,7 @@ test("complete profile → discovery → eligibility → save → documents → 
 }) => {
   const errors: string[] = [];
   page.on("pageerror", (e) => errors.push(e.message));
-  await page.goto("/");
+  await page.goto("/dashboard");
   await expect(
     page.getByRole("heading", {
       name: "Your scholarship workspace.",
@@ -191,7 +191,7 @@ test("storage corruption and denied storage recover without a crash", async ({
     ({ key }) => localStorage.setItem(key, "{corrupted"),
     { key },
   );
-  await page.goto("/");
+  await page.goto("/dashboard");
   await expect(page.getByRole("alert")).toContainText(
     "Saved data could not be read",
   );
@@ -243,6 +243,7 @@ for (const width of [320, 375, 640, 768, 1280, 1440]) {
     await page.setViewportSize({ width, height: 900 });
     for (const path of [
       "/",
+      "/dashboard",
       "/discover",
       "/profile",
       "/scholarships/next-gen-tech",
@@ -470,7 +471,7 @@ test("long names, full catalog, and dialog names remain usable on mobile", async
       ),
     { key },
   );
-  await page.goto("/");
+  await page.goto("/dashboard");
   await expect(
     page.getByRole("heading", { name: "Your shortlist is complete." }),
   ).toBeVisible();
@@ -546,7 +547,7 @@ test("untrusted strings remain text and invalid URL options recover", async ({
 test("route navigation moves focus and failed route assets have recovery", async ({
   page,
 }) => {
-  await page.goto("/");
+  await page.goto("/dashboard");
   await expect(
     page.getByRole("heading", { name: "Your scholarship workspace." }),
   ).toBeVisible();
@@ -563,64 +564,118 @@ test("route navigation moves focus and failed route assets have recovery", async
   ).toBeVisible();
 });
 
-test("production discovery records lab paint and layout stability", async ({
+for (const path of ["/", "/discover"]) {
+  test(`production ${path} records lab paint and layout stability`, async ({
+    page,
+  }, testInfo) => {
+    await page.addInitScript(() => {
+      const metrics = {
+        lcpMs: 0,
+        cumulativeLayoutShift: 0,
+        shifts: [] as { value: number; nodes: string[] }[],
+      };
+      Object.assign(window, { grantlyLabMetrics: metrics });
+      new PerformanceObserver((list) => {
+        metrics.lcpMs = list.getEntries().at(-1)?.startTime ?? 0;
+      }).observe({ type: "largest-contentful-paint", buffered: true });
+      new PerformanceObserver((list) => {
+        for (const entry of list.getEntries()) {
+          const shift = entry as PerformanceEntry & {
+            hadRecentInput: boolean;
+            value: number;
+            sources?: { node?: Element }[];
+          };
+          if (!shift.hadRecentInput) {
+            metrics.cumulativeLayoutShift += shift.value;
+            metrics.shifts.push({
+              value: shift.value,
+              nodes: (shift.sources ?? []).map(
+                (source) => source.node?.tagName + "." + source.node?.className,
+              ),
+            });
+          }
+        }
+      }).observe({ type: "layout-shift", buffered: true });
+    });
+    await page.goto(path);
+    await expect(page.locator("main h1")).toBeVisible();
+    await page.evaluate(() => document.fonts.ready);
+    // Allow the browser to paint the settled font/layout before collecting observations.
+    await page.evaluate(
+      () =>
+        new Promise<void>((resolve) =>
+          requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
+        ),
+    );
+    const metrics = await page.evaluate(
+      () =>
+        (
+          window as unknown as {
+            grantlyLabMetrics: { lcpMs: number; cumulativeLayoutShift: number };
+          }
+        ).grantlyLabMetrics,
+    );
+    console.log(
+      "Production lab metrics (unthrottled Chromium, not field Core Web Vitals):",
+      JSON.stringify(metrics),
+    );
+    await testInfo.attach("production-lab-metrics", {
+      body: JSON.stringify(metrics),
+      contentType: "application/json",
+    });
+    expect(metrics.lcpMs).toBeGreaterThan(0);
+    expect(metrics.cumulativeLayoutShift).toBeLessThan(0.1);
+  });
+}
+
+test("landing page connects discovery, saving, subjects and the workspace without a Home navigation item", async ({
   page,
-}, testInfo) => {
-  await page.addInitScript(() => {
-    const metrics = {
-      lcpMs: 0,
-      cumulativeLayoutShift: 0,
-      shifts: [] as { value: number; nodes: string[] }[],
-    };
-    Object.assign(window, { grantlyLabMetrics: metrics });
-    new PerformanceObserver((list) => {
-      metrics.lcpMs = list.getEntries().at(-1)?.startTime ?? 0;
-    }).observe({ type: "largest-contentful-paint", buffered: true });
-    new PerformanceObserver((list) => {
-      for (const entry of list.getEntries()) {
-        const shift = entry as PerformanceEntry & {
-          hadRecentInput: boolean;
-          value: number;
-          sources?: { node?: Element }[];
-        };
-        if (!shift.hadRecentInput) {
-          metrics.cumulativeLayoutShift += shift.value;
-          metrics.shifts.push({
-            value: shift.value,
-            nodes: (shift.sources ?? []).map(
-              (source) => source.node?.tagName + "." + source.node?.className,
-            ),
-          });
-        }
-      }
-    }).observe({ type: "layout-shift", buffered: true });
-  });
-  await page.goto("/discover");
-  await expect(page.locator(".scholarship-card")).toHaveCount(12);
-  await page.evaluate(() => document.fonts.ready);
-  // Allow the browser to paint the settled font/layout before collecting observations.
-  await page.evaluate(
-    () =>
-      new Promise<void>((resolve) =>
-        requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
-      ),
+}) => {
+  const errors: string[] = [];
+  page.on("pageerror", (error) => errors.push(error.message));
+  await page.setViewportSize({ width: 375, height: 900 });
+  await page.goto("/");
+  await expect(page.getByRole("heading", { level: 1 })).toContainText(
+    "Find a scholarship.",
   );
-  const metrics = await page.evaluate(
-    () =>
-      (
-        window as unknown as {
-          grantlyLabMetrics: { lcpMs: number; cumulativeLayoutShift: number };
-        }
-      ).grantlyLabMetrics,
+  await expect(page).toHaveTitle(
+    "Scholarships, explained and organized — GRANTLY",
   );
-  console.log(
-    "Production lab metrics (unthrottled Chromium, not field Core Web Vitals):",
-    JSON.stringify(metrics),
-  );
-  await testInfo.attach("production-lab-metrics", {
-    body: JSON.stringify(metrics),
-    contentType: "application/json",
-  });
-  expect(metrics.lcpMs).toBeGreaterThan(0);
-  expect(metrics.cumulativeLayoutShift).toBeLessThan(0.1);
+  const nav = page.getByRole("navigation", { name: "Main navigation" });
+  await expect(nav.getByRole("link")).toHaveCount(3);
+  await expect(nav.getByRole("link", { name: /Home|Landing/ })).toHaveCount(0);
+  await page
+    .locator(".landing-opportunity")
+    .getByRole("button", { name: /^Save / })
+    .click();
+  await page
+    .getByRole("link", { name: "Continue your workspace", exact: true })
+    .click();
+  await expect(page).toHaveURL(/\/dashboard$/);
+  await expect(
+    page.getByRole("link", { name: "Saved opportunities 1", exact: true }),
+  ).toBeVisible();
+  await page.getByRole("link", { name: "Grantly home", exact: true }).click();
+  await page
+    .getByRole("link", { name: "Computer science", exact: true })
+    .click();
+  await expect(page).toHaveURL(/field=Computer/);
+  await page.getByRole("button", { name: "Show filters", exact: true }).click();
+  await expect(
+    page.getByRole("combobox", { name: /^Field of study/ }),
+  ).toHaveValue("Computer science");
+  await page.getByRole("link", { name: "Grantly home", exact: true }).click();
+  await page
+    .getByRole("link", { name: "See requirements", exact: true })
+    .click();
+  await expect(page).toHaveURL(/\/scholarships\//);
+  await expect(
+    page.getByRole("heading", { name: "Why this may fit you", exact: true }),
+  ).toBeVisible();
+  await page.getByRole("link", { name: "Grantly home", exact: true }).click();
+  await page
+    .getByRole("link", { name: "Build your student profile", exact: true })
+    .click();
+  await expect(page).toHaveURL(/\/profile$/);
+  expect(errors).toEqual([]);
 });

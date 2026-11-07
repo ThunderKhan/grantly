@@ -12,6 +12,9 @@ import {
 import { useStore } from "./store";
 import { Logo, Empty, ButtonLink } from "./components";
 import { RouteErrorBoundary } from "./RouteErrorBoundary";
+const Landing = lazy(() =>
+  import("./Landing").then((m) => ({ default: m.Landing })),
+);
 const Dashboard = lazy(() =>
   import("./Dashboard").then((m) => ({ default: m.Dashboard })),
 );
@@ -32,15 +35,18 @@ export function App() {
   const location = useLocation();
   useLayoutEffect(() => {
     window.scrollTo(0, 0);
-    const title = location.pathname.startsWith("/discover")
-      ? "Discover scholarships"
-      : location.pathname.startsWith("/profile")
-        ? "Student profile"
-        : location.pathname.startsWith("/applications")
-          ? "My applications"
-          : location.pathname.startsWith("/scholarships")
-            ? "Scholarship details"
-            : "Your workspace";
+    const title =
+      location.pathname === "/"
+        ? "Scholarships, explained and organized"
+        : location.pathname.startsWith("/discover")
+          ? "Discover scholarships"
+          : location.pathname.startsWith("/profile")
+            ? "Student profile"
+            : location.pathname.startsWith("/applications")
+              ? "My applications"
+              : location.pathname.startsWith("/scholarships")
+                ? "Scholarship details"
+                : "Your workspace";
     document.title = `${title} — GRANTLY`;
     const main = document.getElementById("main-content");
     main?.focus({ preventScroll: true });
@@ -55,13 +61,13 @@ export function App() {
           <Logo />
           <nav aria-label="Main navigation">
             {[
-              { to: "/", label: "Dashboard", Icon: LayoutGrid },
+              { to: "/dashboard", label: "Dashboard", Icon: LayoutGrid },
               { to: "/discover", label: "Discover", Icon: Compass },
               { to: "/applications", label: "My Applications", Icon: Layers },
             ].map(({ to, label, Icon }) => (
               <NavLink
                 to={to}
-                end={to === "/"}
+                end={to === "/dashboard"}
                 key={to}
                 aria-label={
                   to === "/applications"
@@ -122,7 +128,8 @@ export function App() {
               }
             >
               <Routes>
-                <Route path="/" element={<Dashboard />} />
+                <Route path="/" element={<Landing />} />
+                <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/discover" element={<Discovery />} />
                 <Route path="/scholarships/:id" element={<Detail />} />
                 <Route path="/applications" element={<Applications />} />
@@ -134,7 +141,7 @@ export function App() {
                       title="A small detour."
                       description="This page doesn’t exist. Your scholarship workspace is one click away."
                     >
-                      <ButtonLink to="/">Back to dashboard</ButtonLink>
+                      <ButtonLink to="/dashboard">Back to dashboard</ButtonLink>
                     </Empty>
                   }
                 />

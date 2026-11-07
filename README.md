@@ -31,7 +31,8 @@ Run `npm run build` before browser tests. Playwright starts the production previ
 
 ## Working experience
 
-- **Dashboard `/`**: derived application counts, actionable reminders, saved deadlines, and profile-based recommendations.
+- **Home `/`**: a scholarship-first introduction with a live opportunity preview, subject shortcuts, and direct entry into the workspace. Home is reached through the logo, with no extra navigation item.
+- **Dashboard `/dashboard`**: derived application counts, actionable reminders, saved deadlines, and profile-based recommendations.
 - **Discover `/discover`**: search, composed filters, relevance/deadline/award ordering, and shareable filter URLs.
 - **Details `/scholarships/:id`**: benefit, criteria, matched/unknown/mismatch explanations, preparation steps, persistent document readiness and personal notes.
 - **Applications `/applications`**: stage filters and reversible Saved → Preparing → Applied → Decision received updates.

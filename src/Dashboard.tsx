@@ -13,7 +13,7 @@ import { useStore } from "./store";
 import { daysUntil, nextAction, relevance } from "./model";
 import { ButtonLink, Empty, ScholarshipCard } from "./components";
 export function Dashboard() {
-  const { state, storageError } = useStore();
+  const { state } = useStore();
   const tracked = catalog.filter((s) => state.tracked[s.id]);
   const deadlines = tracked
     .filter(
@@ -63,14 +63,6 @@ export function Dashboard() {
   ];
   return (
     <>
-      <div className="dashboard-welcome">
-        <span className="local-label">
-          <span className="tiny-dot" />{" "}
-          {storageError
-            ? "Session only · storage unavailable"
-            : "Saved on this browser"}
-        </span>
-      </div>
       <section className="welcome-band">
         <div className="welcome-copy">
           <h1>
@@ -159,8 +151,8 @@ export function Dashboard() {
                 <div>
                   <h3>Build your scholarship shortlist</h3>
                   <p>
-                    Explore {catalog.length} scholarships and save
-                    your shortlist
+                    Explore {catalog.length} scholarships and save your
+                    shortlist
                   </p>
                 </div>
               </Link>
