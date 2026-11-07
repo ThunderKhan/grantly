@@ -2683,3 +2683,64 @@ progress::-moz-progress-bar {
 .recommendation-note {
   font-size: 11px;
 }
+.filter-fields {
+  display: block;
+}
+.mobile-filter-toggle {
+  display: none;
+}
+@media (max-width: 850px) {
+  .filter-panel {
+    display: block;
+  }
+  .filter-fields {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 15px;
+    margin-top: 18px;
+  }
+  .filter-panel > .row {
+    padding: 0;
+  }
+  .filter-fields .fit-filter {
+    grid-column: 1/-1;
+  }
+  .filter-fields .filter-label {
+    margin: 0;
+  }
+}
+@media (max-width: 575px) {
+  .filter-panel {
+    padding: 12px 17px;
+  }
+  .filter-panel h2 {
+    font-size: 11px;
+  }
+  .filter-panel > .row > .reset-text {
+    margin-left: auto;
+  }
+  .filter-fields {
+    display: none;
+  }
+  .filter-fields.expanded {
+    display: grid;
+  }
+  .mobile-filter-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    border: 1px solid var(--border);
+    background: #f5f8f1;
+    border-radius: 999px;
+    min-height: 36px;
+    font-size: 10px;
+    padding: 7px 10px;
+  }
+  .mobile-filter-toggle[aria-expanded="true"] svg {
+    transform: rotate(180deg);
+  }
+  .filter-panel > .row {
+    gap: 10px;
+  }
+}

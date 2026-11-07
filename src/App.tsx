@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useLayoutEffect } from "react";
 import { Link, NavLink, Route, Routes, useLocation } from "react-router-dom";
 import {
   LayoutGrid,
@@ -18,7 +18,7 @@ import { Profile } from "./Profile";
 export function App() {
   const { state, storageError, notice } = useStore();
   const location = useLocation();
-  useEffect(() => {
+  useLayoutEffect(() => {
     window.scrollTo(0, 0);
     const title = location.pathname.startsWith("/discover")
       ? "Discover scholarships"
@@ -59,7 +59,11 @@ export function App() {
               </NavLink>
             ))}
           </nav>
-          <NavLink to="/profile" className="profile-link">
+          <NavLink
+            to="/profile"
+            className="profile-link"
+            aria-label="My profile"
+          >
             <span className="nav-avatar">
               {state.profile.name ? (
                 state.profile.name.slice(0, 1).toUpperCase()

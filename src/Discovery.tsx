@@ -1,10 +1,16 @@
-import { useSearchParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import {
+  useLocation,
+  useNavigationType,
+  useSearchParams,
+} from "react-router-dom";
 import {
   Search,
   SlidersHorizontal,
   RotateCcw,
   Sparkles,
   ArrowUpRight,
+  ChevronDown,
 } from "lucide-react";
 import { catalog } from "./catalog";
 import {
@@ -20,27 +26,34 @@ import { Empty, ScholarshipCard, SectionTitle } from "./components";
 import { Link } from "react-router-dom";
 export function Discovery() {
   const { state } = useStore();
+  const [filtersOpen, setFiltersOpen] = useState(false);
   const [params, setParams] = useSearchParams();
-  const filters = {
-    ...defaultFilters,
-    ...Object.fromEntries(
-      Object.entries(defaultFilters).map(([k, v]) => [k, params.get(k) ?? v]),
-    ),
-  } as Filters;
+  const navigationType = useNavigationType();
+  const location = useLocation();
+  const [filters, setFilters] = useState<Filters>(() => readFilters(params));
+  // Keep typing synchronous. Router transitions must not rewrite an input mid-keystroke.
+  // Back/forward and navigation from other views still restore the URL's filters.
+  useEffect(() => {
+    if (navigationType !== "REPLACE")
+      setFilters(readFilters(new URLSearchParams(location.search)));
+  }, [location.key, location.search, navigationType]);
   const results = discover(catalog, filters, state.profile);
   const active = Object.entries(filters).filter(
     ([k, v]) => k !== "sort" && v,
   ).length;
   function set(key: keyof Filters, value: string) {
-    setParams(
-      (prev) => {
-        const next = new URLSearchParams(prev);
-        if (value && value !== defaultFilters[key]) next.set(key, value);
-        else next.delete(key);
-        return next;
-      },
-      { replace: true },
-    );
+    const nextFilters = { ...filters, [key]: value };
+    setFilters(nextFilters);
+    const next = new URLSearchParams();
+    for (const [key, value] of Object.entries(nextFilters)) {
+      if (value && value !== defaultFilters[key as keyof Filters])
+        next.set(key, value);
+    }
+    setParams(next, { replace: true });
+  }
+  function resetFilters() {
+    setFilters({ ...defaultFilters });
+    setParams({}, { replace: true });
   }
   return (
     <>
@@ -55,86 +68,100 @@ export function Discovery() {
             <h2>
               <SlidersHorizontal size={17} /> Refine your search
             </h2>
-            <button className="reset-text" onClick={() => setParams({})}>
+            <button className="reset-text" onClick={resetFilters}>
               Reset
             </button>
+            <button
+              className="mobile-filter-toggle"
+              aria-expanded={filtersOpen}
+              aria-controls="filter-fields"
+              onClick={() => setFiltersOpen((v) => !v)}
+            >
+              {filtersOpen ? "Hide filters" : "Show filters"}
+              <ChevronDown size={16} />
+            </button>
           </div>
-          <label className="filter-label">
-            Education level
-            <select
-              value={filters.level}
-              onChange={(e) => set("level", e.target.value)}
-            >
-              <option value="">All study levels</option>
-              {levels.map((x) => (
-                <option key={x}>{x}</option>
-              ))}
-            </select>
-          </label>
-          <label className="filter-label">
-            Field of study
-            <select
-              value={filters.field}
-              onChange={(e) => set("field", e.target.value)}
-            >
-              <option value="">All fields</option>
-              {fields.map((x) => (
-                <option key={x}>{x}</option>
-              ))}
-            </select>
-          </label>
-          <label className="filter-label">
-            State of residence
-            <select
-              value={filters.region}
-              onChange={(e) => set("region", e.target.value)}
-            >
-              <option value="">All states</option>
-              {regions.map((x) => (
-                <option key={x}>{x}</option>
-              ))}
-            </select>
-          </label>
-          <label className="filter-label">
-            Deadline
-            <select
-              value={filters.deadline}
-              onChange={(e) => set("deadline", e.target.value)}
-            >
-              <option value="">Any deadline</option>
-              <option value="upcoming">Upcoming</option>
-              <option value="soon">Within 30 days</option>
-              <option value="expired">Deadline passed</option>
-              <option value="unknown">Not specified</option>
-            </select>
-          </label>
-          <fieldset className="fit-filter">
-            <legend>Fit with your profile</legend>
-            {["", "Potential match", "Needs verification", "Review fit"].map(
-              (x) => (
-                <label key={x}>
-                  <input
-                    type="radio"
-                    name="fit"
-                    value={x}
-                    checked={filters.fit === x}
-                    onChange={() => set("fit", x)}
-                  />
-                  {x || "All opportunities"}
-                </label>
-              ),
-            )}
-          </fieldset>
-          <div className="filter-note">
-            <Sparkles size={20} />
-            <strong>A better fit starts with you.</strong>
-            <p>
-              Add your study details to see what matches and what needs
-              checking.
-            </p>
-            <Link to="/profile" className="text-link">
-              Edit my profile <ArrowUpRight size={16} />
-            </Link>
+          <div
+            id="filter-fields"
+            className={`filter-fields ${filtersOpen ? "expanded" : ""}`}
+          >
+            <label className="filter-label">
+              Education level
+              <select
+                value={filters.level}
+                onChange={(e) => set("level", e.target.value)}
+              >
+                <option value="">All study levels</option>
+                {levels.map((x) => (
+                  <option key={x}>{x}</option>
+                ))}
+              </select>
+            </label>
+            <label className="filter-label">
+              Field of study
+              <select
+                value={filters.field}
+                onChange={(e) => set("field", e.target.value)}
+              >
+                <option value="">All fields</option>
+                {fields.map((x) => (
+                  <option key={x}>{x}</option>
+                ))}
+              </select>
+            </label>
+            <label className="filter-label">
+              State of residence
+              <select
+                value={filters.region}
+                onChange={(e) => set("region", e.target.value)}
+              >
+                <option value="">All states</option>
+                {regions.map((x) => (
+                  <option key={x}>{x}</option>
+                ))}
+              </select>
+            </label>
+            <label className="filter-label">
+              Deadline
+              <select
+                value={filters.deadline}
+                onChange={(e) => set("deadline", e.target.value)}
+              >
+                <option value="">Any deadline</option>
+                <option value="upcoming">Upcoming</option>
+                <option value="soon">Within 30 days</option>
+                <option value="expired">Deadline passed</option>
+                <option value="unknown">Not specified</option>
+              </select>
+            </label>
+            <fieldset className="fit-filter">
+              <legend>Fit with your profile</legend>
+              {["", "Potential match", "Needs verification", "Review fit"].map(
+                (x) => (
+                  <label key={x}>
+                    <input
+                      type="radio"
+                      name="fit"
+                      value={x}
+                      checked={filters.fit === x}
+                      onChange={() => set("fit", x)}
+                    />
+                    {x || "All opportunities"}
+                  </label>
+                ),
+              )}
+            </fieldset>
+            <div className="filter-note">
+              <Sparkles size={20} />
+              <strong>A better fit starts with you.</strong>
+              <p>
+                Add your study details to see what matches and what needs
+                checking.
+              </p>
+              <Link to="/profile" className="text-link">
+                Edit my profile <ArrowUpRight size={16} />
+              </Link>
+            </div>
           </div>
         </aside>
         <section className="results" aria-label="Scholarship results">
@@ -188,7 +215,7 @@ export function Discovery() {
               title="Let’s widen the search."
               description="No opportunities match this combination. Try another subject or clear your filters."
             >
-              <button className="button" onClick={() => setParams({})}>
+              <button className="button" onClick={resetFilters}>
                 <RotateCcw size={16} /> Reset search & filters
               </button>
             </Empty>
@@ -197,4 +224,16 @@ export function Discovery() {
       </div>
     </>
   );
+}
+
+function readFilters(params: URLSearchParams): Filters {
+  return {
+    ...defaultFilters,
+    ...Object.fromEntries(
+      Object.entries(defaultFilters).map(([key, value]) => [
+        key,
+        params.get(key) ?? value,
+      ]),
+    ),
+  } as Filters;
 }

@@ -314,3 +314,49 @@ test("keyboard navigation and removing a scholarship", async ({ page }) => {
     page.getByRole("heading", { name: "Your shortlist starts here." }),
   ).toBeVisible();
 });
+
+test("mobile search, expandable filters, saving and preparation", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 375, height: 812 });
+  await page.goto("/discover");
+  await page.getByRole("button", { name: "Show filters", exact: true }).click();
+  await page
+    .getByRole("combobox", { name: "Education level", exact: true })
+    .selectOption("Undergraduate");
+  await expect(page.locator("article")).toHaveCount(10);
+  await page.getByRole("button", { name: "Hide filters", exact: true }).click();
+  await page
+    .getByRole("textbox", { name: "Search scholarships" })
+    .fill("Next Gen Tech Scholarship");
+  await expect(page.locator("article")).toHaveCount(1);
+  await page
+    .getByRole("link", { name: "Next Gen Tech Scholarship", exact: true })
+    .click();
+  await expect(
+    page.getByRole("heading", {
+      name: "Next Gen Tech Scholarship",
+      exact: true,
+    }),
+  ).toBeVisible();
+  await page
+    .getByRole("button", { name: "Start preparing", exact: true })
+    .click();
+  await expect(
+    page.getByRole("combobox", {
+      name: "Application stage for Next Gen Tech Scholarship",
+    }),
+  ).toHaveValue("preparing");
+  await page
+    .getByRole("checkbox", { name: "Proof of enrollment", exact: true })
+    .check();
+  await page.reload();
+  await expect(
+    page.getByRole("checkbox", { name: "Proof of enrollment", exact: true }),
+  ).toBeChecked();
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= innerWidth,
+    ),
+  ).toBe(true);
+});
