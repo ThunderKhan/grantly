@@ -217,10 +217,12 @@ export function FitBadge({ s }: { s: Scholarship }) {
 export function ScholarshipCard({
   s,
   compared = false,
+  compareDisabled = false,
   onCompare,
 }: {
   s: Scholarship;
   compared?: boolean;
+  compareDisabled?: boolean;
   onCompare?: (id: string) => void;
 }) {
   const { state } = useStore();
@@ -267,7 +269,7 @@ export function ScholarshipCard({
       </div>
       {onCompare && (
         <label className="compare-control">
-          <input type="checkbox" checked={compared} onChange={() => onCompare(s.id)} />
+          <input type="checkbox" checked={compared} disabled={compareDisabled} onChange={() => onCompare(s.id)} />
           Compare
         </label>
       )}
