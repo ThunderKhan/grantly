@@ -1,4 +1,5 @@
-import { useRef, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
+import { useBlocker } from "react-router-dom";
 // avoid-ai-design-ignore: I3 -- Check identifies save confirmation and concrete matching/privacy facts.
 import { Check, ShieldCheck, UserRound, Trash2 } from "lucide-react";
 import { useStore } from "./store";
@@ -12,6 +13,7 @@ import {
   type Profile as ProfileType,
 } from "./model";
 import { Confirm, SectionTitle } from "./components";
+import { BackupControls } from "./BackupControls";
 import { Link } from "react-router-dom";
 export function Profile() {
   const { state, saveProfile, reset } = useStore();
@@ -24,6 +26,20 @@ export function Profile() {
     (k) => form[k as keyof ProfileType],
   ).length;
   const dirty = JSON.stringify(form) !== JSON.stringify(state.profile);
+  const blocker = useBlocker(dirty);
+  useEffect(() => {
+    if (!dirty) return;
+    const preventClose = (event: BeforeUnloadEvent) => {
+      event.preventDefault();
+      event.returnValue = "";
+    };
+    window.addEventListener("beforeunload", preventClose);
+    return () => window.removeEventListener("beforeunload", preventClose);
+  }, [dirty]);
+  // Restoring a backup replaces the shared profile without losing the form.
+  useEffect(() => {
+    setForm(state.profile);
+  }, [state.profile]);
   function validateMarks(value: string) {
     return !validMarks(value)
       ? "Enter a percentage from 0 to 100, or leave this blank."
@@ -196,8 +212,19 @@ export function Profile() {
               </button>
             </div>
           </div>
+          <BackupControls />
         </aside>
       </div>
+      <Confirm
+        open={blocker.state === "blocked"}
+        onClose={() => blocker.reset?.()}
+        onConfirm={() => blocker.proceed?.()}
+        title="Leave without saving profile changes?"
+        confirmLabel="Discard changes and leave"
+        cancelLabel="Keep editing"
+      >
+        Your profile edits have not been saved. Leave this page to discard them, or stay and save the profile first.
+      </Confirm>
       <Confirm
         open={confirm}
         onClose={() => setConfirm(false)}
