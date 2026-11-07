@@ -228,7 +228,7 @@ export function Discovery() {
             <section className="comparison-section" id="comparison-results" aria-label="Scholarship comparison">
               <h2>Side-by-side comparison</h2>
               <p>These are planning summaries. Always confirm requirements and the application window with the provider.</p>
-              <div className="comparison-scroll">
+              <div className="comparison-scroll" role="region" aria-label="Scrollable scholarship comparison table" tabIndex={0}>
                 <table className="comparison-table">
                   <thead>
                     <tr>
